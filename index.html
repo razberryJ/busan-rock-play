@@ -335,6 +335,12 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw
 .setup-steps ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
 .setup-steps .setup-warn { background: var(--surface-2); border-radius: 8px; padding: 6px 8px; color: var(--ink); }
 .setup-note { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+.setup-preview-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.setup-preview-wrap > summary { cursor: pointer; list-style: none; padding: 10px 14px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.setup-preview-wrap > summary::-webkit-details-marker { display: none; }
+.setup-preview-wrap > summary::before { content: "▸"; transition: transform .15s; }
+.setup-preview-wrap[open] > summary::before { transform: rotate(90deg); }
+.setup-preview-wrap > .setup-preview { padding: 0 14px 14px; }
 .setup-preview { margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .setup-preview figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 14px; }
 .setup-preview figcaption a { color: var(--ink); font-size: 13px; }
@@ -434,6 +440,8 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw
     <div class="eyebrow">2026 Busan International Rock Festival · 10.2–10.4</div>
     <h2>우리 그룹 만들기</h2>
     <p class="setup-lead">친구들끼리 볼 공연, 쉬는 시간, 돗자리 자리를 같이 기록하는 시간표예요. 기록은 <b>우리 그룹 Firebase</b>에만 저장돼요. 구글 계정만 있으면 무료로 10분이면 만들어요.</p>
+    <details class="setup-preview-wrap">
+      <summary>완성 화면 미리 보기</summary>
     <figure class="setup-preview">
       <figcaption><b>다 만들면 이런 화면이에요</b> <a href="?demo" target="_blank" rel="noopener">데모 직접 둘러보기 →</a></figcaption>
       <div class="pv-row">
@@ -443,6 +451,7 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw
       </div>
       <div class="pv-cap"><span>무대별 시간표</span><span>친구별 동선</span><span>무대 지도 · 돗자리</span></div>
     </figure>
+    </details>
     <p class="setup-note">그룹에서 <b>한 명만</b> 하면 돼요. 나머지 친구들은 마지막에 나오는 링크만 받으면 끝이에요. 컴퓨터 크롬에서 하면 편하고, Firebase는 <b>새 탭</b>에서 열어서 이 화면은 그대로 두세요.</p>
     <ol class="setup-steps">
       <li>
