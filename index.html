@@ -1,0 +1,1410 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17191A">
+<title>부산국제록페스티벌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+/* Layout: poster-style header, "who am I" bar, day + view switch, then one scrollable board
+   (stage columns × time, or friend lanes × time). Stage colors come from the official timetable. */
+:root {
+  --bg: #EDF1E8;
+  --surface: #FFFFFF;
+  --surface-2: #F6F8F3;
+  --ink: #17191A;
+  --muted: #5B6459;
+  --line: #D3DACD;
+  --line-soft: #E4E9DF;
+  --bar: #17191A;
+  --bar-ink: #F4F6F0;
+  --hot: #E0342A;
+  --on-stage: #17191A;
+  --s-samrock: #F6E36A;
+  --s-green: #AEEB7E;
+  --s-river: #F6B3CB;
+  --s-wave: #82DCE6;
+  --s-hidden: #BBA8F3;
+  --map-ground: #A6D8C6;
+  --map-path: #FFFFFF;
+  --map-edge: #7FBFA9;
+  --map-lawn: #62BC94;
+  --map-pale: #CFE9DA;
+  --map-bg: #D9EFE6;
+  --f-display: "Black Han Sans", "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --px: 1.7px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111412; --surface: #1A1E1B; --surface-2: #151916; --ink: #EEF1EA; --muted: #9BA597;
+    --line: #2F3731; --line-soft: #242A25; --bar: #EEF1EA; --bar-ink: #111412; --hot: #FF5A4E;
+    --on-stage: #17191A;
+    --s-samrock: #DCC652; --s-green: #92CD66; --s-river: #DB97B0; --s-wave: #66BFCA; --s-hidden: #9F8CDA;
+    --map-ground: #1F3A31; --map-path: #7C9489; --map-edge: #14261F; --map-lawn: #2C5B45; --map-pale: #193128; --map-bg: #15231D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111412; --surface: #1A1E1B; --surface-2: #151916; --ink: #EEF1EA; --muted: #9BA597;
+  --line: #2F3731; --line-soft: #242A25; --bar: #EEF1EA; --bar-ink: #111412; --hot: #FF5A4E;
+  --on-stage: #17191A;
+  --s-samrock: #DCC652; --s-green: #92CD66; --s-river: #DB97B0; --s-wave: #66BFCA; --s-hidden: #9F8CDA;
+    --map-ground: #1F3A31; --map-path: #7C9489; --map-edge: #14261F; --map-lawn: #2C5B45; --map-pale: #193128; --map-bg: #15231D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 48px; display: flex; flex-direction: column; gap: 14px; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--hot); outline-offset: 2px; }
+
+/* header */
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw, 46px); line-height: 1; margin: 4px 0 0; letter-spacing: -.01em; text-wrap: balance; }
+.dday { font-family: var(--f-mono); font-size: 12px; background: var(--bar); color: var(--bar-ink); padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+
+/* top-right people button */
+.top-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+.people-btn { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--ink); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 4px; font-weight: 700; }
+.people-btn .pb-me { display: inline-flex; align-items: center; gap: 6px; }
+.people-btn .pb-me.none { padding-left: 8px; color: var(--hot); }
+.people-btn .pb-count { font-family: var(--f-mono); font-size: 11px; font-weight: 500; color: var(--muted); border-left: 1px solid var(--line); padding-left: 8px; }
+.people-btn.nudge { animation: shake .35s; }
+
+/* drawer */
+.scrim { position: fixed; inset: 0; background: rgba(10,12,11,.45); z-index: 40; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(360px, 100%); z-index: 41; background: var(--surface); border-left: 2px solid var(--ink); padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; overflow-y: auto; overflow-x: hidden; }
+.dr-head { display: flex; align-items: center; justify-content: space-between; }
+.dr-head h2 { font-family: var(--f-display); font-weight: 400; font-size: 24px; margin: 0; }
+.dr-close { border: 0; background: var(--line-soft); width: 32px; height: 32px; border-radius: 50%; font-size: 20px; line-height: 1; }
+.people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.person { display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 8px 10px; }
+.person .pick { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 0; text-align: left; }
+.person .p-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.person .p-stat { font-family: var(--f-mono); font-size: 11px; color: var(--muted); display: block; font-weight: 500; }
+.person.is-me { border-color: var(--ink); background: var(--surface); box-shadow: 0 0 0 1px var(--ink); }
+.me-tag { font-family: var(--f-mono); font-size: 10px; background: var(--ink); color: var(--surface); border-radius: 999px; padding: 1px 7px; flex: none; }
+.person .x { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 3px 8px; color: var(--muted); font-size: 12px; flex: none; }
+.person.confirm { border-color: var(--hot); flex-wrap: wrap; }
+.person.confirm span { flex: 1 1 100%; }
+.person.confirm button { border: 0; border-radius: 8px; padding: 4px 10px; font-size: 12px; }
+.person.confirm .yes { background: var(--hot); color: #fff; }
+.person.confirm .no { background: var(--line-soft); }
+.empty-chips { color: var(--muted); padding: 10px 0; }
+.add { display: flex; gap: 6px; }
+.add input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 6px 12px; }
+.drawer #editBtn { align-self: flex-start; }
+.btn { border: 1.5px solid var(--ink); background: var(--ink); color: var(--surface); border-radius: 999px; padding: 5px 12px; font-weight: 700; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); font-weight: 500; }
+.hint { margin: 0; color: var(--muted); font-size: 13px; }
+.hint.warn { color: var(--hot); }
+.shake { animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+/* controls */
+.controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 9px; padding: 6px 12px; font-weight: 500; color: var(--muted); display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+.seg button small { font-size: 10px; font-family: var(--f-mono); letter-spacing: .02em; }
+.seg button[aria-selected="true"] { background: var(--bar); color: var(--bar-ink); }
+.day-date { font-family: var(--f-display); font-size: 17px; }
+#viewTabs button { flex-direction: row; display: inline-flex; align-items: center; white-space: nowrap; }
+#mealBtn { white-space: nowrap; }
+
+/* now strip */
+.now { background: var(--bar); color: var(--bar-ink); border-radius: 14px; padding: 10px 14px; display: flex; gap: 8px 14px; flex-wrap: wrap; align-items: center; }
+.now-time { font-family: var(--f-display); font-size: 18px; display: flex; align-items: center; gap: 6px; }
+.now-time::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--hot); animation: pulse 1.6s infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+.now-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.now-item .where { font-weight: 700; }
+.now-item .none { opacity: .6; }
+
+/* board */
+.scroller { overflow: auto; max-height: min(78vh, 1240px); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overscroll-behavior: contain; }
+.g-head, .g-body { display: grid; grid-template-columns: 46px repeat(5, minmax(118px, 1fr)) minmax(96px, .75fr); min-width: 732px; }
+.st-food { background: var(--surface-2); color: var(--ink) !important; }
+.g-col.food { background: repeating-linear-gradient(90deg, transparent 0 10px, var(--line-soft) 10px 11px); }
+.meal-blk { position: absolute; z-index: 1; left: 4px; right: 4px; border-radius: 8px; background: var(--fc); background: color-mix(in srgb, var(--fc) 26%, transparent); border: 1.5px solid var(--fc); color: var(--ink); padding: 3px 5px; overflow: visible; display: flex; flex-direction: column; gap: 2px; line-height: 1.15; text-align: left; font-size: 11px; }
+.meal-blk:hover { background: color-mix(in srgb, var(--fc) 40%, transparent); z-index: 2; }
+.meal-tag { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.meal-tag b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meal-blk small { font-family: var(--f-mono); font-size: 9px; color: var(--muted); white-space: nowrap; }
+.meal-blk.stacked { padding: 0; }
+.meal-dot { position: absolute; top: 3px; left: calc(4px + var(--i, 0) * 21px); box-shadow: 0 0 0 2px var(--surface); }
+.l-meal { position: absolute; height: 34px; border-radius: 17px; background: var(--fc); color: #fff; padding: 2px 10px; overflow: hidden; display: flex; flex-direction: column; justify-content: center; line-height: 1.1; border: 2px solid var(--surface); }
+.l-meal b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-meal small { font-family: var(--f-mono); font-size: 9px; white-space: nowrap; }
+.sw.mealpat { background: var(--ink); border-radius: 7px; border-color: var(--ink); width: 22px; }
+
+.meal-blk.rest { border-style: dashed; background-image: repeating-linear-gradient(135deg, transparent 0 5px, color-mix(in srgb, var(--fc) 38%, transparent) 5px 7px); }
+.l-meal.rest { background: var(--surface); color: var(--ink); border: 2px dashed var(--fc); background-image: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--fc) 30%, transparent) 6px 9px); }
+.sw.restpat { width: 22px; border-radius: 7px; border: 1.5px dashed var(--ink); background: repeating-linear-gradient(135deg, transparent 0 3px, var(--line) 3px 5px); }
+.kind-seg { display: inline-flex; align-self: flex-start; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
+.kind-seg button { border: 0; background: transparent; border-radius: 8px; padding: 5px 12px; font-weight: 500; color: var(--muted); }
+.kind-seg button[aria-pressed="true"] { background: var(--bar); color: var(--bar-ink); }
+.meal-list .kind { font-family: var(--f-mono); font-size: 10px; border: 1px solid var(--ink); border-radius: 999px; padding: 0 6px; flex: none; }
+.meal-list .kind.rest { border-style: dashed; }
+/* meal section in drawer */
+.meal { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+#mealOn { display: flex; flex-direction: column; gap: 12px; }
+#mealOn[hidden] { display: none !important; }
+.presets { display: flex; gap: 8px; flex-wrap: wrap; }
+.presets button { border: 1px dashed var(--line); background: transparent; border-radius: 999px; padding: 5px 12px; font-size: 12px; color: var(--muted); }
+.meal-form { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px 8px; align-items: center; }
+.meal-form input { width: 100%; min-width: 0; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 9px 10px; font-variant-numeric: tabular-nums; }
+.meal-form #mealLabel, .meal-form #mealSubmit { grid-column: 1 / -1; }
+.meal-form #mealSubmit { padding: 9px 12px; }
+.meal-form #mealCancel { grid-column: 1 / -1; justify-self: start; }
+.meal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.meal-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+.meal-list li .t { font-family: var(--f-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.meal-list li b { flex: 1 1 6em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meal-list li .acts { display: flex; gap: 6px; margin-left: auto; }
+.meal-list li button { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 10px; font-size: 12px; color: var(--muted); }
+.meal-list li.editing { box-shadow: 0 0 0 2px var(--ink); }
+.meal h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 19px; display: flex; align-items: baseline; gap: 8px; }
+.meal h3 small { font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.meal-off { color: var(--muted); font-size: 13px; margin: 0; }
+.g-head { position: sticky; top: 0; z-index: 5; background: var(--surface); border-bottom: 2px solid var(--ink); }
+.g-corner { position: sticky; left: 0; background: var(--surface); z-index: 6; }
+.g-stage { padding: 8px 6px 6px; text-align: center; color: var(--on-stage); display: flex; flex-direction: column; line-height: 1; gap: 2px; border-left: 1px solid var(--ink); }
+.g-stage b { font-family: var(--f-display); font-weight: 400; font-size: 18px; letter-spacing: .02em; }
+.g-stage small { font-family: var(--f-mono); font-size: 10px; }
+.gate { grid-column: 1 / -1; background: var(--bar); color: var(--bar-ink); font-family: var(--f-display); text-align: center; font-size: 13px; letter-spacing: .1em; padding: 3px 0; }
+.st-samrock { background: var(--s-samrock); } .st-green { background: var(--s-green); } .st-river { background: var(--s-river); }
+.st-wave { background: var(--s-wave); } .st-hidden { background: var(--s-hidden); }
+.g-body { position: relative; }
+.g-axis { position: sticky; left: 0; z-index: 3; background: var(--surface); border-right: 1px solid var(--line); }
+.g-axis span { position: absolute; right: 6px; transform: translateY(-50%); font-family: var(--f-display); font-size: 15px; }
+.g-col { position: relative; border-left: 1px solid var(--line-soft); }
+.hr { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); z-index: 0; }
+.hr.half { border-top-style: dashed; border-color: var(--line-soft); }
+.set-pop { position: fixed; z-index: 60; width: max-content; max-width: min(280px, calc(100vw - 32px)); background: var(--surface); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 12px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,.18); pointer-events: none; display: flex; flex-direction: column; gap: 4px; }
+.set-pop .sp-stage { font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; display: flex; align-items: center; gap: 6px; }
+.set-pop .sp-stage .sw { width: 10px; height: 10px; }
+.set-pop .sp-name { font-weight: 700; font-size: 15px; line-height: 1.25; }
+.set-pop .sp-en { font-size: 12px; color: var(--muted); }
+.set-pop .sp-time { font-family: var(--f-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.set-pop .sp-who { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 2px; font-size: 12px; }
+.set-pop .sp-who span { display: inline-flex; align-items: center; gap: 4px; }
+.set-pop .sp-none { color: var(--muted); font-size: 12px; }
+.set-pop .sp-hint { color: var(--muted); font-size: 11px; border-top: 1px solid var(--line-soft); padding-top: 4px; margin-top: 2px; }
+.set { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.set { position: absolute; left: 4px; right: 4px; z-index: 1; border: 1.5px solid rgba(23,25,26,.55); border-radius: 8px; color: var(--on-stage); text-align: left; padding: 4px 6px; display: flex; flex-direction: column; gap: 1px; overflow: hidden; transition: transform .12s; }
+.set:hover { transform: translateY(-1px); }
+.set:active { transform: scale(.98); }
+.set-name { font-weight: 700; font-size: 13px; line-height: 1.15; }
+.set-en { font-size: 10px; opacity: .8; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: auto; }
+.set-time { font-family: var(--f-mono); font-size: 10px; font-variant-numeric: tabular-nums; }
+.set-tag { font-family: var(--f-mono); font-size: 9px; letter-spacing: .06em; background: var(--on-stage); color: var(--s-samrock); padding: 0 4px; border-radius: 3px; align-self: flex-start; }
+.set.mine { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); border-color: var(--on-stage); border-width: 2.5px; }
+.set.past { filter: saturate(.55); }
+.dots { display: flex; gap: 2px; flex-wrap: wrap; }
+.dot { width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; font-style: normal; color: #fff; background: var(--fc); border: 2px solid var(--fc); flex: none; line-height: 1; }
+.dot.lg { width: 22px; height: 22px; font-size: 11px; }
+.nowline { position: absolute; left: 0; right: 0; border-top: 2px solid var(--hot); z-index: 4; pointer-events: none; }
+.nowline::before { content: "NOW"; position: absolute; left: 2px; top: -9px; background: var(--hot); color: #fff; font-family: var(--f-mono); font-size: 9px; padding: 1px 4px; border-radius: 3px; }
+
+/* lanes */
+.scroller.lanes-mode { overflow: visible; max-height: none; }
+.lanes { display: grid; grid-template-columns: 96px minmax(0, 1fr); }
+.l-names { border-right: 1px solid var(--line); min-width: 0; }
+.l-name { display: flex; align-items: center; gap: 6px; padding: 0 8px; font-weight: 700; border-bottom: 1px solid var(--line-soft); min-width: 0; }
+.l-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l-name.axis { height: 32px; border-bottom: 2px solid var(--ink); font-family: var(--f-mono); font-size: 10px; color: var(--muted); font-weight: 500; }
+.l-scroll { overflow-x: auto; overscroll-behavior-x: contain; min-width: 0; }
+.l-wrap { position: relative; }
+.l-axis-row { position: relative; height: 32px; border-bottom: 2px solid var(--ink); }
+.l-track { position: relative; border-bottom: 1px solid var(--line-soft); }
+.tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--line); }
+.tick b { position: absolute; left: 4px; top: 5px; font-family: var(--f-display); font-weight: 400; font-size: 15px; }
+.l-blk { position: absolute; height: 34px; border-radius: 7px; border: 1.5px solid rgba(23,25,26,.55); color: var(--on-stage); padding: 2px 6px; overflow: hidden; display: flex; flex-direction: column; justify-content: center; line-height: 1.1; }
+.l-blk b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-blk small { font-family: var(--f-mono); font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-empty-row { color: var(--muted); font-size: 12px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); white-space: nowrap; }
+.l-grid { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--line-soft); pointer-events: none; }
+.board-empty { padding: 40px 20px; text-align: center; color: var(--muted); display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.board-empty strong { font-family: var(--f-display); font-weight: 400; font-size: 22px; color: var(--ink); }
+
+.lane-filter { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.lf-sum { font-family: var(--f-mono); font-size: 11px; color: var(--muted); margin-left: 4px; }
+.grid-mine .set:not(.mine) { opacity: .2; filter: saturate(.2); }
+.grid-mine .set:not(.mine):hover { opacity: .55; }
+.grid-mine .set:not(.mine) .dots { display: none; }
+.lf-label { font-family: var(--f-mono); font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.lf-chip { display: inline-flex; align-items: center; gap: 5px; border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-weight: 500; font-size: 13px; color: var(--muted); }
+.lf-chip .dot { width: 18px; height: 18px; font-size: 9px; margin-left: -6px; }
+.lf-chip[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.lf-chip[aria-pressed="false"] .dot { opacity: .45; }
+/* official guide map overlay */
+.guide { position: fixed; inset: 0; z-index: 45; background: var(--bg); display: flex; flex-direction: column; }
+.guide-bar { display: flex; align-items: center; gap: 8px; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; border-bottom: 2px solid var(--ink); background: var(--surface); }
+.guide-bar b { font-family: var(--f-display); font-weight: 400; font-size: 18px; margin-right: auto; }
+.guide-bar a.lf-chip { text-decoration: none; }
+.guide-body { flex: 1; overflow: auto; padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px)); overscroll-behavior: contain; }
+.guide-body img { display: block; width: 100%; max-width: 900px; height: auto; margin: 0 auto; border-radius: 10px; }
+.guide-body.zoom img { width: 2251px; max-width: none; }
+.guide-msg { text-align: center; color: var(--muted); margin: 40px 0; }
+.guide-btn { margin-left: auto; }
+/* picnic mats on the map */
+.map-svg .mat { cursor: grab; touch-action: none; }
+.map-svg .mat.dragging { cursor: grabbing; }
+.map-svg .mat.dragging .mat-body { stroke-width: 2.2; }
+.map-svg .mat-name { font-size: 8px; font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 2.5px; }
+.map-ctrl { flex-wrap: wrap; }
+.spot-row { display: flex !important; flex-wrap: wrap; align-items: center; gap: 6px 8px !important; }
+.spot-row input { flex: 1 1 8em; min-width: 0; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 5px 8px; font-weight: 700; }
+.spot-row button { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 10px; font-size: 12px; color: var(--muted); }
+.spot-row button.yes { background: var(--hot); border-color: var(--hot); color: #fff; }
+.sw.matpat { width: 16px; height: 12px; border-radius: 2px; border: 1px solid var(--ink); background: repeating-conic-gradient(var(--hot) 0 25%, var(--s-samrock) 0 50%) 0 0 / 6px 6px; }
+#mealSpot { grid-column: 1 / -1; width: 100%; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 9px 10px; }
+/* stage map */
+.map-ctrl { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+.map-ctrl output { font-family: var(--f-display); font-size: 20px; min-width: 3.2em; font-variant-numeric: tabular-nums; }
+.map-ctrl input[type=range] { flex: 1; min-width: 0; accent-color: var(--hot); }
+.scroller.map-mode { overflow: visible; max-height: none; }
+.map-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 290px); }
+.map-svg { display: block; width: 100%; height: auto; max-width: 720px; margin: 0 auto; }
+@media (min-width: 641px) {
+  /* keep the whole map inside one screen on PC; the list column scrolls with it */
+  .map-svg { max-height: max(460px, calc(100vh - 245px)); }
+  .map-list { max-height: max(460px, calc(100vh - 245px)); overflow-y: auto; }
+}
+.map-svg text { font-family: var(--f-body); }
+.map-svg .m-ground, .map-svg .m-path, .map-svg .m-walk { vector-effect: non-scaling-stroke; }
+.map-svg .m-ground { fill: var(--surface-2); stroke: var(--line); stroke-width: 1; stroke-linejoin: round; }
+.map-svg .m-path { fill: none; stroke: var(--line); stroke-width: 6.5; stroke-linecap: round; stroke-linejoin: round; }
+.map-svg .m-path-edge { fill: none; stroke: var(--map-edge); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+.map-svg .m-walk { fill: none; stroke: var(--hot); stroke-width: 1.4; stroke-dasharray: 1.5 3; stroke-linecap: round; }
+.map-svg .m-lawn { fill: var(--map-lawn); }
+.map-svg .m-road { fill: none; stroke: var(--map-path); stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; }
+.map-svg .m-arrow { fill: var(--hot); }
+.map-svg .m-stage { stroke: var(--on-stage); stroke-width: 1.2; }
+.map-svg .m-name { font-family: var(--f-display); font-size: 11px; fill: var(--ink); }
+.map-svg .m-sub { font-size: 7.5px; fill: var(--on-stage); }
+.map-svg .m-sub.food { fill: var(--muted); }
+.map-svg .m-poi { font-size: 7.5px; fill: var(--muted); }
+.map-svg .m-gate { fill: var(--bar); }
+.map-svg .m-gate-t { font-family: var(--f-display); font-size: 7.5px; fill: var(--bar-ink); }
+.map-svg .m-dot-t { font-size: 7px; font-weight: 700; fill: #fff; }
+.map-list { list-style: none; margin: 0; padding: 12px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line); }
+.map-list li { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 4px 8px; align-items: start; padding: 6px 0; border-bottom: 1px solid var(--line-soft); }
+.map-list li:last-child { border-bottom: 0; }
+.map-list .sw { margin-top: 3px; width: 12px; height: 12px; }
+.map-list .ml-stage { font-family: var(--f-display); font-size: 13px; }
+.map-list .ml-set { font-weight: 700; }
+.map-list .ml-time { font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.map-list .ml-idle { color: var(--muted); font-size: 13px; }
+.map-list .dots { grid-column: 2; }
+.map-foot { grid-column: 1 / -1; margin: 0; padding: 8px 12px 12px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); }
+.map-foot a { color: inherit; }
+@media (max-width: 640px) {
+  .map-wrap { grid-template-columns: 1fr; }
+  .map-list { border-left: 0; border-top: 1px solid var(--line); }
+}
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: 12px; align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid rgba(23,25,26,.55); display: inline-block; }
+.sw.minepat { background: var(--ink); border-color: var(--ink); }
+.notice { background: var(--surface); border: 1.5px solid var(--hot); border-radius: 12px; padding: 10px 14px; font-size: 13px; }
+.src { color: var(--muted); font-size: 12px; margin: 0; }
+.src a { color: inherit; }
+
+.ended { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: grid; place-items: center; padding: 16px; }
+.ended-card { max-width: 360px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
+.ended-card h2 { font-family: var(--f-display); font-weight: 400; font-size: 40px; margin: 0; }
+.ended-card p { margin: 0; color: var(--muted); line-height: 1.6; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); background: var(--bar); color: var(--bar-ink); padding: 9px 16px; border-radius: 999px; font-weight: 500; opacity: 0; pointer-events: none; transition: .2s; z-index: 50; max-width: calc(100% - 32px); text-align: center; }
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 640px) {
+  .wrap { gap: 10px; padding-block: 10px 32px; }
+  .eyebrow { font-size: 10px; }
+  .eyebrow .venue { display: none; }
+  h1 { font-size: 28px; }
+  .top { gap: 8px; }
+  .top-right { margin-left: 0; justify-content: flex-start; width: 100%; flex-wrap: nowrap; }
+  .dday { font-size: 11px; padding: 5px 9px; }
+  .people-btn { margin-left: auto; padding: 3px 10px 3px 3px; font-size: 13px; }
+  .people-btn .pb-count { font-size: 10px; }
+  .controls { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  #dayTabs { flex: 1 1 100%; }
+  #viewTabs { flex: 1 1 auto; }
+  .seg { justify-content: space-between; }
+  .seg button { flex: 1; padding: 4px 6px; font-size: 13px; }
+  .day-date { font-size: 15px; }
+  #mealBtn { padding: 5px 10px; font-size: 13px; white-space: nowrap; }
+  .lbl-long { display: none; }
+  #viewTabs button { white-space: nowrap; }
+
+  /* timetable fits the phone width: all stages side by side, the page scrolls */
+  .scroller.grid-mode { overflow: visible; max-height: none; border-radius: 10px; }
+  .grid-mode .g-head, .grid-mode .g-body { grid-template-columns: 24px repeat(5, minmax(0, 1fr)) minmax(0, .55fr); min-width: 0; }
+  .grid-mode .g-head { top: env(safe-area-inset-top, 0px); border-radius: 10px 10px 0 0; }
+  .grid-mode .g-stage { padding: 6px 0 4px; border-left-width: 1px; }
+  .grid-mode .g-stage b { font-size: 10.5px; letter-spacing: 0; }
+  .grid-mode .g-stage small { font-size: 8px; }
+  .grid-mode .g-stage.st-food b { font-size: 9.5px; }
+  .grid-mode .g-stage.st-food small { display: none; }
+  .grid-mode .gate { font-size: 10px; padding: 2px 0; }
+  .grid-mode .g-axis span { font-size: 12px; right: 3px; }
+  .grid-mode .set { left: 2px; right: 2px; padding: 3px; border-radius: 5px; border-width: 1px; gap: 0; }
+  .grid-mode .set-name { font-size: 11px; line-height: 1.15; word-break: keep-all; overflow-wrap: normal; overflow: hidden; }
+  .grid-mode .set-en, .grid-mode .set-tag { display: none; }
+  .grid-mode .set-time { font-size: 9px; display: flex; flex-direction: column; line-height: 1.15; }
+  .grid-mode .set-row { gap: 2px; margin-top: 3px; }
+  .grid-mode .dot { width: 14px; height: 14px; font-size: 7.5px; border-width: 1.5px; }
+  .grid-mode .set > * { flex-shrink: 0; }
+  .grid-mode .dots { gap: 1px; flex-wrap: wrap; flex: 1 1 100%; min-width: 0; }
+  /* crowded short block: slightly smaller dots, letters always kept */
+  .grid-mode .dots.tight .dot { width: 12px; height: 12px; font-size: 6.5px; border-width: 1px; }
+  .grid-mode .set.spill { overflow: visible; z-index: 2; }
+  .grid-mode .set.mine { box-shadow: 0 0 0 1.5px var(--surface), 0 0 0 3px var(--ink); }
+  .grid-mode .meal-blk { left: 1px; right: 1px; padding: 2px; }
+  .grid-mode .meal-tag b, .grid-mode .meal-blk small { display: none; }
+  .grid-mode .meal-dot { box-shadow: 0 0 0 1.5px var(--surface); left: 50%; margin-left: -7px; top: calc(3px + var(--i, 0) * 16px); }
+  .nowline::before { font-size: 8px; }
+}
+@media (min-width: 641px) {
+  /* PC: one screen, no page scroll — the board takes the remaining height and scrolls inside */
+  html, body { height: 100%; overflow: hidden; }
+  .wrap { height: 100vh; padding-block: 14px 12px; gap: 10px; }
+  .wrap > * { flex: none; }
+  .wrap > #board { flex: 1 1 auto; min-height: 280px; max-height: none; overflow: auto; }
+  .scroller.map-mode, .scroller.lanes-mode { overflow: auto; max-height: none; }
+  .map-svg { max-height: none; }
+  .map-wrap { height: 100%; }
+  .map-wrap .map-svg { height: calc(100% - 42px); width: 100%; }
+  .map-list { max-height: none; overflow-y: auto; min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before { animation: none !important; transition: none !important; }
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+
+
+<div class="ended" id="ended" hidden>
+  <div class="ended-card">
+    <div class="eyebrow">2026 Busan International Rock Festival</div>
+    <h2>부락 2026 끝!</h2>
+    <p>다들 수고했어요. 이 페이지는 축제가 끝나서 닫혔어요.<br>내년에 또 만나요.</p>
+  </div>
+</div>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">2026 Busan International Rock Festival<span class="venue"> · 삼락생태공원 · 10.2–10.4</span></div>
+      <h1>부산국제록페스티벌</h1>
+    </div>
+    <div class="top-right">
+      <div class="dday" id="dday"></div>
+      <button type="button" class="people-btn" id="peopleBtn" aria-haspopup="dialog" aria-controls="drawer" aria-expanded="false">
+        <span id="peopleBtnMe" class="pb-me">나 선택 안 함</span>
+        <span class="pb-count" id="peopleBtnCount">인원 목록</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <nav class="controls" aria-label="날짜와 보기 선택">
+    <div class="seg" id="dayTabs" role="tablist" aria-label="날짜"></div>
+    <div class="seg" id="viewTabs" role="tablist" aria-label="보기">
+      <button type="button" role="tab" data-view="grid"><span class="lbl-long">무대별 </span>시간표</button>
+      <button type="button" role="tab" data-view="lanes">친구<span class="lbl-long">별</span> 동선</button>
+      <button type="button" role="tab" data-view="map"><span class="lbl-long">무대 </span>지도</button>
+    </div>
+    <button type="button" class="btn ghost" id="mealBtn">+ 쉬는 시간</button>
+  </nav>
+
+  <section class="now" id="nowStrip" hidden aria-live="polite"></section>
+
+  <div class="map-ctrl" id="mapCtrl" hidden>
+    <label for="mapTime" class="lf-label">시각</label>
+    <output id="mapTimeOut" for="mapTime">12:00</output>
+    <input type="range" id="mapTime" min="680" max="1330" step="10" value="720" aria-label="지도에서 볼 시각">
+    <button type="button" class="lf-chip" id="mapNow">지금</button>
+    <button type="button" class="lf-chip guide-btn" id="guideBtn">공식 가이드맵</button>
+    <button type="button" class="lf-chip" id="addSpot">+ 돗자리</button>
+  </div>
+  <div class="lane-filter" id="gridFilter" role="group" aria-label="시간표 보기 방식" hidden></div>
+  <div class="lane-filter" id="laneFilter" role="group" aria-label="볼 친구 고르기" hidden></div>
+
+  <div class="scroller" id="board"></div>
+
+  <div class="legend">
+    <span><i class="sw st-samrock"></i>SAMROCK</span>
+    <span><i class="sw st-green"></i>GREEN</span>
+    <span><i class="sw st-river"></i>RIVER</span>
+    <span><i class="sw st-wave"></i>WAVE</span>
+    <span><i class="sw st-hidden"></i>HIDDEN (무료존)</span>
+    <span><i class="sw minepat"></i>내가 선택한 공연</span>
+    <span><i class="sw mealpat"></i>쉬는 시간 (친구 색)</span>
+    <span><i class="sw matpat"></i>돗자리</span>
+  </div>
+  <p class="src">시간표 출처: <a href="https://busanrockfestival.com/TIMETABLE" target="_blank" rel="noopener">부산국제록페스티벌 공식 타임테이블</a> (9월 17일 공개본). 현장 변경이 있을 수 있어요.</p>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+  <div class="dr-head">
+    <h2 id="drawerTitle">인원 목록</h2>
+    <button type="button" class="dr-close" id="drawerClose" aria-label="닫기">×</button>
+  </div>
+  <p class="hint" id="hint">내 이름을 누르면 그 이름으로 기록돼요. 시간표에서 공연 칸을 누르면 선택, 한 번 더 누르면 해제돼요.</p>
+  <ul class="people" id="chips"><li class="empty-chips">인원 목록을 불러오는 중…</li></ul>
+  <form class="add" id="addForm" autocomplete="off">
+    <input id="newName" name="newName" maxlength="10" placeholder="이름 추가 (예: 민지)" aria-label="추가할 이름">
+    <button class="btn" type="submit">추가</button>
+  </form>
+  <button class="btn ghost" type="button" id="editBtn" aria-pressed="false">목록 관리</button>
+  <section class="meal" id="mealSec" aria-labelledby="mealTitle">
+    <h3 id="mealTitle">내 쉬는 시간 <small id="mealDay"></small></h3>
+    <p class="meal-off" id="mealOff">위에서 내 이름을 고르면 쉬는 시간(밥·돗자리)을 넣을 수 있어요.</p>
+    <div id="mealOn" hidden>
+      <div class="kind-seg" id="kindSeg" role="group" aria-label="종류" hidden>
+        <button type="button" data-kind="meal" aria-pressed="true">식사</button>
+        <button type="button" data-kind="rest" aria-pressed="false">휴식 · 돗자리</button>
+      </div>
+      <div class="presets" id="presets"></div>
+      <form class="meal-form" id="mealForm" autocomplete="off">
+        <input type="time" id="mealS" step="600" min="10:00" max="23:00" aria-label="시작 시각">
+        <span>~</span>
+        <input type="time" id="mealE" step="600" min="10:00" max="23:00" aria-label="끝 시각">
+        <select id="mealSpot" aria-label="돗자리 고르기" hidden></select>
+        <input id="mealLabel" maxlength="12" placeholder="메모 (예: 푸드트럭)" aria-label="메모">
+        <button class="btn" type="submit" id="mealSubmit">쉬는 시간 추가</button>
+        <button class="btn ghost" type="button" id="mealCancel" hidden>수정 취소</button>
+      </form>
+      <ul class="meal-list" id="mealList"></ul>
+    </div>
+  </section>
+</aside>
+<div class="guide" id="guide" role="dialog" aria-modal="true" aria-label="공식 행사장 가이드맵" hidden>
+  <div class="guide-bar">
+    <b>행사장 가이드맵</b>
+    <button type="button" class="lf-chip" id="guideZoom" aria-pressed="false">확대</button>
+    <a class="lf-chip" href="https://busanrockfestival.com/notice/2026notice_19/" target="_blank" rel="noopener">출처</a>
+    <button type="button" class="dr-close" id="guideClose" aria-label="닫기">×</button>
+  </div>
+  <div class="guide-body" id="guideBody">
+    <p class="guide-msg" id="guideMsg">불러오는 중…</p>
+    <img id="guideImg" alt="2026 부산국제록페스티벌 공식 행사장 가이드맵. 정문 옆 WAVE·SAMROCK, 오른쪽 위 GREEN, 오른쪽 FOOD LOUNGE, 가운데 HIDDEN(무료존), 맨 아래 RIVER 무대와 편의시설 위치" hidden>
+  </div>
+</div>
+<div class="set-pop" id="setPop" role="tooltip" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const T0 = 11 * 60 + 20, T1 = 22 * 60 + 10;
+let PX = 1.7;
+const LPX = 1.5;
+const narrowMQ = window.matchMedia("(max-width: 640px)");
+const STAGES = [
+  { id: "samrock", name: "SAMROCK" },
+  { id: "green", name: "GREEN" },
+  { id: "river", name: "RIVER" },
+  { id: "wave", name: "WAVE" },
+  { id: "hidden", name: "HIDDEN", free: true },
+];
+const STAGE_NAME = Object.fromEntries(STAGES.map(s => [s.id, s.name]));
+const DAYS = [
+  { n: 1, date: "2026-10-02", label: "10.2", dow: "금" },
+  { n: 2, date: "2026-10-03", label: "10.3", dow: "토" },
+  { n: 3, date: "2026-10-04", label: "10.4", dow: "일" },
+];
+// [국문, 영문, 시작, 끝, 태그]
+const RAW = {
+  1: {
+    samrock: [["다다다","DADADA","12:00","12:30"],["정우","JUNGWOO","13:00","13:30"],["KARDI","","14:00","14:40"],["로맨틱펀치","Romantic Punch","15:20","16:00"],["브로콜리너마저","Broccoli, you too?","16:50","17:40"],["CreepHyp","","18:30","19:30"],["AVENGED SEVENFOLD","","20:40","22:00","HEAD"]],
+    green: [["Tokai","","11:30","12:00"],["hathaw9y","","12:30","13:00"],["Redoor","","13:30","14:00"],["LUCKLIFE","","14:40","15:20"],["Xdinary Heroes","","16:00","16:50"],["장범준","JANG BEOM JUNE","17:40","18:30"],["이승윤","LEE SEUNG YOON","19:30","20:30"]],
+    river: [["hrtz.wav","","11:40","12:10"],["DYGL","","12:40","13:10"],["공원","gongwon","13:40","14:20"],["한요한","Han Yo Han","14:50","15:30"],["Elephant Gym","","16:00","16:40"],["페퍼톤스","PEPPERTONES","17:10","18:00"],["N.Flying","","18:40","19:40"]],
+    wave: [["D82","","11:30","12:00"],["산보","Sanbo","12:30","13:00"],["HOA","","13:30","14:00"],["밴드기린","BANDKIRIN","14:40","15:20"],["알레프","ALEPH","16:00","16:50"],["강산에","Kang San Eh","17:40","18:30"],["J.E.B","","19:30","20:20","DANCING WAVE"]],
+    hidden: [["노아코스트","Noa Coast","13:20","13:50"],["블낫블","Blue is Not Blue","14:10","14:40"],["퓨처피어클럽","FuturePeerClub","15:00","15:30"],["아스라이","asraii","15:50","16:20"],["나타샤","NATASHA","16:40","17:10"],["부락 대운동회","BU-ROCK SPORTS DAY","17:40","18:20","EVENT"],["부락 노래자랑","BU-ROCK SINGING CONTEST","18:30","19:20","EVENT"]],
+  },
+  2: {
+    samrock: [["Wah Wah Wah","","12:00","12:30"],["신인류","Shin In Ryu","13:00","13:30"],["SPACEY JANE","","14:00","14:40"],["WOODZ","","15:20","16:00"],["터치드","TOUCHED","16:50","17:40"],["잔나비","JANNABI","18:30","19:30"],["MEGADETH","","20:40","22:00","HEAD"]],
+    green: [["프랭클리","FRankly","11:30","12:00"],["캔트비블루","can't be blue","12:30","13:00"],["스카웨이커스","SKAWAKERs","13:30","14:00"],["브로큰 발렌타인","BROKEN VALENTINE","14:40","15:20"],["ADOY","","16:00","16:50"],["IDIOTAPE","","17:40","18:30"],["Suchmos","","19:30","20:30"]],
+    river: [["야자수","Yajasu","11:40","12:10"],["이츠","IT'S","12:40","13:10"],["고고학","GOGOHAWK","13:40","14:20"],["오월오일","OWALLOIL","14:50","15:30"],["윤마치","MRCH","16:00","16:40"],["권진아","KWON JIN AH","17:10","18:00"],["Henry Moodie","","18:40","19:40"]],
+    wave: [["단감자","dangamjah","11:30","12:00"],["Chivan","","12:30","13:00"],["AxMxP","","13:30","14:00"],["GOODMOOD","","14:40","15:20"],["Wendy Wander","","16:00","16:50"],["세이수미","Say Sue Me","17:40","18:30"],["HYPNOSIS THERAPY","","19:30","20:20","DANCING WAVE"]],
+    hidden: [["베이루트택시","BEIRUT TAXI","13:20","13:50"],["최춘목밴드","BandCMC","14:10","14:40"],["천둥오리","CheondungOri","15:00","15:30"],["To More Raw","","15:50","16:20"],["Eddie and the Bricks","","16:40","17:10"],["부락 대운동회","BU-ROCK SPORTS DAY","17:40","18:20","EVENT"],["부락 노래자랑","BU-ROCK SINGING CONTEST","18:30","19:20","EVENT"]],
+  },
+  3: {
+    samrock: [["양치기소년단","The Shepherd Bois","12:00","12:30"],["극동아시아타이거즈","Far East Asian Tigers","13:00","13:30"],["너드커넥션","Nerd Connection","14:00","14:40"],["HANABIE.","","15:20","16:00"],["한로로","HANRORO","16:50","17:40"],["Hitsujibungaku","羊文学","18:40","19:40"],["THE LIBERTINES","","20:50","22:00","HEAD"]],
+    green: [["심아일랜드","SIMILE LAND","11:30","12:00"],["레이지본","LAZYBONE","12:30","13:00"],["Dragon Pony","","13:30","14:00"],["AiNA THE END","","14:40","15:20"],["LUCY","","16:00","16:50"],["CNBLUE","","17:40","18:40"],["송골매","Songolmae","19:40","20:40"]],
+    river: [["희규","heegyu","11:40","12:10"],["OYSTERS","","12:40","13:10"],["Ardhito Pramono","","13:40","14:20"],["까치산","KACHISAN","14:50","15:30"],["김뜻돌","Meaningful Stone","16:00","16:40"],["김성규","KIM SUNG KYU","17:10","18:00"],["카더가든","Car, the garden","18:40","19:40"]],
+    wave: [["정수민","JUNGSOOMIN","11:30","12:00"],["BØJEONG","","12:30","13:00"],["KIK","","13:30","14:00"],["Tuesday Beach Club","","14:40","15:20"],["놀이도감","Noridogam","16:00","16:50"],["데이먼스이어","DAMONS YEAR","17:40","18:30"],["타이거디스코","Tiger Disco","19:40","20:30","DANCING WAVE"]],
+    hidden: [["김푸름","KIM PUREUM","13:20","13:50"],["시인을 위하여","for the poet","14:10","14:40"],["데이네버체인지","TheyNeverChange","15:00","15:30"],["포져군단","POSER","15:50","16:20"],["아사달","Asadal","16:40","17:10"],["Rookies on the BU-ROCK Awards","","17:40","18:20","EVENT"],["부락 노래자랑","BU-ROCK SINGING CONTEST","18:30","19:20","EVENT"]],
+  },
+};
+const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+const fmt = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
+const SETS = [];
+for (const d of [1, 2, 3]) for (const st of STAGES) for (const r of RAW[d][st.id]) {
+  SETS.push({ id: `d${d}-${st.id}-${r[2].replace(":", "")}`, day: d, stage: st.id, ko: r[0], en: r[1], s: toMin(r[2]), e: toMin(r[3]), tag: r[4] || "" });
+}
+const SET_BY_ID = Object.fromEntries(SETS.map(s => [s.id, s]));
+const PALETTE = ["#E4572E", "#2A6FDB", "#1B998B", "#8E44AD", "#D81E5B", "#E08A00", "#3D348B", "#2E7D32", "#795548", "#0088A3", "#C2185B", "#546E7A"];
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const initial = name => [...name.trim()][0] || "?";
+
+function kstNow() {
+  const d = new Date(Date.now() + 9 * 3600e3);
+  return { date: d.toISOString().slice(0, 10), min: d.getUTCHours() * 60 + d.getUTCMinutes() };
+}
+function todayDay() { const n = kstNow(); const d = DAYS.find(x => x.date === n.date); return d ? d.n : 0; }
+
+const state = {
+  friends: [],
+  loaded: false,
+  me: store.get("burock.me") || "",
+  day: todayDay() || Number(store.get("burock.day")) || 1,
+  view: ["lanes", "map"].includes(store.get("burock.view")) ? store.get("burock.view") : "grid",
+  mapMin: null,
+  mealKind: "rest",
+  spots: [],
+  drag: null,
+  confirmSpot: "",
+  laneOnly: [],
+  gridMine: store.get("burock.gridMine") === "1",
+  editing: false,
+  confirmDel: "",
+  readOnly: false,
+  noDb: false,
+};
+let db = null;
+
+const $ = id => document.getElementById(id);
+
+/* ---------- header / tabs ---------- */
+function renderDday() {
+  const n = kstNow();
+  const start = Date.UTC(2026, 9, 2), today = Date.parse(n.date + "T00:00:00Z");
+  const diff = Math.round((start - today) / 864e5);
+  const td = todayDay();
+  $("dday").textContent = td ? `DAY ${td} · 진행 중` : diff > 0 ? `D-${diff} · 10.2(금) 개막` : "축제 종료 · 추억 보관 중";
+}
+function renderTabs() {
+  $("dayTabs").innerHTML = DAYS.map(d => `<button type="button" role="tab" data-day="${d.n}" aria-selected="${d.n === state.day}"><span class="day-date">${d.label}</span><small>${d.dow} · DAY ${d.n}</small></button>`).join("");
+  for (const b of $("viewTabs").children) b.setAttribute("aria-selected", String(b.dataset.view === state.view));
+}
+$("dayTabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-day]"); if (!b) return;
+  state.day = Number(b.dataset.day); store.set("burock.day", state.day); renderTabs(); renderBoard(true); renderNow(); renderChips();
+});
+$("viewTabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-view]"); if (!b) return;
+  state.view = b.dataset.view; store.set("burock.view", state.view); renderTabs(); renderBoard(true);
+});
+
+/* ---------- friends bar ---------- */
+function renderPeopleBtn() {
+  const me = state.friends.find(f => f.id === state.me);
+  const pm = $("peopleBtnMe");
+  pm.classList.toggle("none", !me);
+  pm.innerHTML = me ? `<i class="dot lg" style="--fc:${me.color}">${esc(initial(me.name))}</i>${esc(me.name)}` : "나 선택 안 함";
+  $("peopleBtnCount").textContent = state.loaded && !state.noDb ? `인원 ${state.friends.length}명` : "인원 목록";
+}
+function renderChips() {
+  renderPeopleBtn(); renderMeals();
+  const el = $("chips");
+  if (!state.loaded) return;
+  if (!state.friends.length) {
+    el.innerHTML = `<li class="empty-chips">아직 아무도 없어요. 아래에 내 이름부터 추가하세요.</li>`;
+    return;
+  }
+  el.innerHTML = state.friends.map(f => {
+    if (state.confirmDel === f.id) {
+      return `<li class="person confirm"><span>${esc(f.name)}와(과) 기록을 모두 삭제할까요?</span><button type="button" class="yes" data-del-yes="${f.id}">삭제</button><button type="button" class="no" data-del-no>취소</button></li>`;
+    }
+    const me = f.id === state.me;
+    const picks = Object.keys(f.sets || {}).filter(sid => SET_BY_ID[sid] && SET_BY_ID[sid].day === state.day).length;
+    const br = mealsOf(f, state.day).length;
+    const stat = picks || br ? `DAY ${state.day} · 공연 ${picks}${br ? ` · 쉬는 시간 ${br}` : ""}` : `DAY ${state.day} · 기록 없음`;
+    return `<li class="person${me ? " is-me" : ""}"><button type="button" class="pick" data-pick="${f.id}" aria-pressed="${me}"><i class="dot lg" style="--fc:${f.color}">${esc(initial(f.name))}</i><span style="min-width:0"><span class="p-name">${esc(f.name)}</span><span class="p-stat">${stat}</span></span></button>${me ? '<span class="me-tag">나</span>' : ""}${state.editing ? `<button type="button" class="x" data-del="${f.id}" aria-label="${esc(f.name)} 삭제">삭제</button>` : ""}</li>`;
+  }).join("");
+}
+function openDrawer() {
+  $("drawer").hidden = false; $("scrim").hidden = false;
+  $("peopleBtn").setAttribute("aria-expanded", "true");
+  renderChips();
+  $("drawerClose").focus();
+}
+function closeDrawer() {
+  $("drawer").hidden = true; $("scrim").hidden = true;
+  $("peopleBtn").setAttribute("aria-expanded", "false");
+  state.confirmDel = "";
+  $("peopleBtn").focus();
+}
+$("peopleBtn").addEventListener("click", openDrawer);
+$("drawerClose").addEventListener("click", closeDrawer);
+$("scrim").addEventListener("click", closeDrawer);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("drawer").hidden) closeDrawer(); });
+$("chips").addEventListener("click", e => {
+  const del = e.target.closest("[data-del]");
+  if (del) { state.confirmDel = del.dataset.del; renderChips(); return; }
+  const yes = e.target.closest("[data-del-yes]");
+  if (yes) { removeFriend(yes.dataset.delYes); return; }
+  if (e.target.closest("[data-del-no]")) { state.confirmDel = ""; renderChips(); return; }
+  const pick = e.target.closest("[data-pick]");
+  if (pick) pickMe(pick.dataset.pick);
+});
+function pickMe(id) {
+  state.me = state.me === id ? "" : id;
+  store.set("burock.me", state.me);
+  const f = state.friends.find(x => x.id === state.me);
+  renderChips(); renderBoard();
+  if (f) { toast(`${f.name}(으)로 기록할게요`); if (!state.editing) closeDrawer(); }
+}
+$("editBtn").addEventListener("click", () => {
+  state.editing = !state.editing; state.confirmDel = "";
+  $("editBtn").setAttribute("aria-pressed", String(state.editing));
+  $("editBtn").textContent = state.editing ? "관리 끝" : "목록 관리";
+  renderChips();
+});
+$("addForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = $("newName").value.trim();
+  if (!name) return hint("이름을 입력하세요.", true);
+  if (!db) return hint("지금 화면에서는 친구를 저장할 수 없어요.", true);
+  if (state.readOnly) return hint("이 링크는 보기 전용이라 추가할 수 없어요.", true);
+  if (state.friends.some(f => f.name === name)) return hint(`'${name}'은(는) 이미 있어요.`, true);
+  const used = new Set(state.friends.map(f => f.color));
+  const color = PALETTE.find(c => !used.has(c)) || PALETTE[state.friends.length % PALETTE.length];
+  const ref = db.collection("friends").doc();
+  const body = { name, color, createdAt: Date.now(), sets: {}, meals: [] };
+  $("newName").value = "";
+  try {
+    await ref.set(body);
+    if (!state.me) { state.me = ref.id; store.set("burock.me", ref.id); }
+    hint(`${name} 추가됨. 이제 공연 칸을 눌러 기록하세요.`);
+    renderChips();
+  } catch (err) { writeError(err); }
+});
+async function removeFriend(id) {
+  state.confirmDel = "";
+  try {
+    await db.doc("friends/" + id).delete();
+    if (state.me === id) { state.me = ""; store.set("burock.me", ""); }
+    toast("삭제했어요");
+  } catch (err) { writeError(err); }
+}
+function hint(msg, warn) {
+  const h = $("hint"); h.innerHTML = esc(msg); h.classList.toggle("warn", !!warn);
+  if (warn) { h.classList.remove("shake"); void h.offsetWidth; h.classList.add("shake"); }
+}
+
+/* ---------- toggling a set ---------- */
+const queues = {};
+function friendBody(f) {
+  return { name: f.name, color: f.color, createdAt: f.createdAt || Date.now(), sets: f.sets || {}, meals: f.meals || [] };
+}
+function saveFriend(f) {
+  const body = friendBody(f);
+  queues[f.id] = (queues[f.id] || Promise.resolve()).then(() => db.doc("friends/" + f.id).set(body)).catch(writeError);
+}
+function meOrAsk() {
+  if (!db) { toast("지금 화면에서는 기록을 저장할 수 없어요"); return null; }
+  if (state.readOnly) { toast("보기 전용 링크라 기록할 수 없어요"); return null; }
+  const me = state.friends.find(f => f.id === state.me);
+  if (!me) { openDrawer(); hint("먼저 내 이름을 고르거나 추가하세요.", true); return null; }
+  return me;
+}
+function toggleSet(setId) {
+  const set = SET_BY_ID[setId];
+  const me = meOrAsk(); if (!me) return;
+  const sets = { ...(me.sets || {}) };
+  const on = !sets[setId];
+  if (on) sets[setId] = 1; else delete sets[setId];
+  me.sets = sets;
+  renderBoard(); renderNow(); renderChips();
+  toast(on ? `${set.ko} 선택 ✓` : `${set.ko} 선택 해제`);
+  saveFriend(me);
+}
+
+/* ---------- meals ---------- */
+const mealsOf = (f, day) => (f.meals || []).filter(m => m.day === day).sort((a, b) => a.s - b.s);
+// breaks share the meals list; entries saved before rest existed have no kind and are meals
+// meals and rests were merged into one "쉬는 시간"; old entries keep their stored fields
+const isRest = () => true;
+const breakLabel = m => m.label || "휴식";
+const PRESETS = {
+  meal: [["점심", "12:30-13:20"], ["간식", "15:30-16:10"], ["저녁", "17:40-18:30"]],
+  rest: [["점심", "12:30-13:20"], ["휴식", "15:30-16:20"], ["저녁", "17:40-18:30"]],
+};
+function renderSpotSelect(selected) {
+  const sel = $("mealSpot");
+  sel.hidden = state.mealKind !== "rest" || !state.spots.length;
+  if (sel.hidden) return;
+  const cur = selected !== undefined ? selected : sel.value;
+  sel.innerHTML = state.spots.map(sp => `<option value="${sp.id}">돗자리: ${esc(sp.name)}</option>`).join("") + `<option value="">돗자리 정하지 않음</option>`;
+  sel.value = state.spots.some(sp => sp.id === cur) || cur === "" ? cur : state.spots[0].id;
+}
+function renderKind() {
+  const k = state.mealKind;
+  for (const b of $("kindSeg").children) b.setAttribute("aria-pressed", String(b.dataset.kind === k));
+  $("presets").innerHTML = PRESETS[k].map(([l, r]) => `<button type="button" data-preset="${r}" data-label="${l}">${l} ${r.split("-")[0]}</button>`).join("");
+  $("mealLabel").placeholder = "메모 (예: 점심, 푸드트럭, 돗자리)";
+  if (!state.editMeal) $("mealSubmit").textContent = "쉬는 시간 추가";
+  renderSpotSelect();
+}
+$("kindSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-kind]"); if (!b) return;
+  state.mealKind = b.dataset.kind; renderKind();
+});
+function renderMeals() {
+  const me = state.friends.find(f => f.id === state.me);
+  $("mealDay").textContent = `${DAYS[state.day - 1].label} ${DAYS[state.day - 1].dow} · DAY ${state.day}`;
+  $("mealOff").hidden = !!me; $("mealOn").hidden = !me;
+  if (!me) return;
+  const list = mealsOf(me, state.day);
+  $("mealList").innerHTML = list.length
+    ? list.map(m => `<li${m.id === state.editMeal ? ' class="editing"' : ""}><span class="t">${fmt(m.s)}–${fmt(m.e)}</span><b>${esc(breakLabel(m))}</b><span class="acts"><button type="button" data-meal-edit="${m.id}">수정</button><button type="button" data-meal-del="${m.id}">삭제</button></span></li>`).join("")
+    : `<li class="meal-off" style="background:none;padding:2px 0">이날 쉬는 시간이 아직 없어요.</li>`;
+}
+function fillMealDefaults() {
+  const n = kstNow(), today = DAYS[state.day - 1].date === n.date;
+  let s = today && n.min >= 10 * 60 && n.min < 22 * 60 ? Math.ceil(n.min / 10) * 10 : 12 * 60 + 30;
+  $("mealS").value = hhmm(s); $("mealE").value = hhmm(Math.min(s + 50, 23 * 60));
+}
+const hhmm = m => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+$("presets").addEventListener("click", e => {
+  const b = e.target.closest("[data-preset]"); if (!b) return;
+  const [s, en] = b.dataset.preset.split("-"); $("mealS").value = s; $("mealE").value = en;
+  $("mealLabel").value = b.dataset.label;
+});
+$("mealForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const me = meOrAsk(); if (!me) return;
+  if (!$("mealS").value || !$("mealE").value) return hint("시작과 끝 시간을 넣어주세요.", true);
+  const s = toMin($("mealS").value), en = toMin($("mealE").value);
+  if (en <= s) return hint("끝 시간이 시작 시간보다 늦어야 해요.", true);
+  if (s < 10 * 60 || en > 23 * 60) return hint("시간은 10:00부터 23:00 사이로 넣어주세요.", true);
+  const rest = state.mealKind === "rest";
+  const label = $("mealLabel").value.trim() || "휴식";
+  const editing = state.editMeal && (me.meals || []).some(m => m.id === state.editMeal);
+  const spot = rest && !$("mealSpot").hidden ? $("mealSpot").value : "";
+  const withKind = m => {
+    const x = { ...m, s, e: en, label };
+    if (rest) x.kind = "rest"; else delete x.kind;
+    if (spot) x.spot = spot; else delete x.spot;
+    return x;
+  };
+  if (editing) me.meals = me.meals.map(m => m.id === state.editMeal ? withKind(m) : m);
+  else me.meals = [...(me.meals || []), withKind({ id: "m" + Date.now().toString(36), day: state.day })];
+  setMealEdit("");
+  renderMeals(); renderBoard(); renderNow(); renderChips();
+  toast(editing ? `${fmt(s)} ${label}(으)로 수정` : `${fmt(s)} 쉬는 시간 추가`);
+  saveFriend(me);
+});
+function setMealEdit(id) {
+  state.editMeal = id;
+  $("mealSubmit").textContent = id ? "수정 저장" : "쉬는 시간 추가";
+  $("mealCancel").hidden = !id;
+  if (!id) $("mealLabel").value = "";
+}
+$("mealCancel").addEventListener("click", () => { setMealEdit(""); fillMealDefaults(); renderMeals(); });
+$("mealList").addEventListener("click", e => {
+  const ed = e.target.closest("[data-meal-edit]");
+  if (ed) {
+    const me = state.friends.find(f => f.id === state.me);
+    const m = me && (me.meals || []).find(x => x.id === ed.dataset.mealEdit); if (!m) return;
+    renderKind(); renderSpotSelect(m.spot || (state.spots[0] ? state.spots[0].id : ""));
+    setMealEdit(m.id);
+    $("mealS").value = hhmm(m.s); $("mealE").value = hhmm(m.e); $("mealLabel").value = m.label || "";
+    renderMeals(); $("mealS").focus();
+    return;
+  }
+  const b = e.target.closest("[data-meal-del]"); if (!b) return;
+  if (b.dataset.mealDel === state.editMeal) setMealEdit("");
+  const me = meOrAsk(); if (!me) return;
+  me.meals = (me.meals || []).filter(m => m.id !== b.dataset.mealDel);
+  renderMeals(); renderBoard(); renderNow(); renderChips();
+  toast("삭제했어요");
+  saveFriend(me);
+});
+$("mealBtn").addEventListener("click", () => {
+  openDrawer(); setMealEdit(""); renderKind(); fillMealDefaults(); renderMeals();
+  if (state.me) $("mealSec").scrollIntoView({ block: "start" });
+});
+function writeError(err) {
+  const code = err && err.code;
+  if (code === "permission-denied" || code === "invalid_argument") {
+    state.readOnly = true;
+    showNotice("기록 저장이 거부됐어요. 저장소 보안 규칙(firestore.rules)을 확인해 주세요. 시간표와 친구들 기록은 계속 볼 수 있어요.");
+  } else if (code === "resource-exhausted") {
+    showNotice("오늘 무료 사용량을 넘었어요. 잠시 뒤 다시 시도해 주세요.");
+  } else {
+    toast("저장이 안 됐어요. 잠시 뒤 다시 눌러주세요");
+  }
+}
+function showNotice(msg) { const n = $("notice"); n.textContent = msg; n.hidden = false; }
+
+/* ---------- board ---------- */
+function statusMap(dayN) {
+  // setId -> [{friend, status}]
+  const m = {};
+  for (const f of state.friends) for (const [sid, st] of Object.entries(f.sets || {})) {
+    const s = SET_BY_ID[sid]; if (!s || s.day !== dayN) continue;
+    (m[sid] ||= []).push({ f, st });
+  }
+  return m;
+}
+function nowMinForDay() {
+  const n = kstNow(); const d = DAYS[state.day - 1];
+  if (n.date !== d.date || n.min < T0 || n.min > T1) return null;
+  return n.min;
+}
+function renderGrid() {
+  const H = (T1 - T0) * PX, map = statusMap(state.day), nowM = nowMinForDay();
+  const dayDate = DAYS[state.day - 1].date, today = kstNow();
+  const isPast = s => today.date > dayDate || (today.date === dayDate && today.min >= s.e);
+  let lines = "";
+  for (let m = 11 * 60 + 30; m <= 22 * 60; m += 30) lines += `<div class="hr${m % 60 ? " half" : ""}" style="top:${(m - T0) * PX}px"></div>`;
+  let axis = "";
+  for (let h = 12; h <= 22; h++) axis += `<span style="top:${(h * 60 - T0) * PX}px">${h}</span>`;
+  let cols = STAGES.map(st => {
+    const blocks = SETS.filter(s => s.day === state.day && s.stage === st.id).map(s => {
+      const who = map[s.id] || [], mine = who.find(w => w.f.id === state.me);
+      const h = (s.e - s.s) * PX, head = s.tag === "HEAD";
+      const cls = ["set", "st-" + s.stage, head ? "head" : "", mine ? "mine" : "", isPast(s) ? "past" : ""].join(" ");
+      const dots = who.map(w => `<i class="dot" style="--fc:${w.f.color}" title="${esc(w.f.name)}">${esc(initial(w.f.name))}</i>`).join("");
+      const label = `${s.ko} ${fmt(s.s)}부터 ${fmt(s.e)}까지, ${st.name}. ${who.length ? who.map(w => w.f.name).join(", ") + " 선택" : "선택한 사람 없음"}`;
+      return `<button type="button" class="${cls}" data-set="${s.id}" style="top:${(s.s - T0) * PX + 1}px;height:${h - 2}px" aria-label="${esc(label)}">
+        ${s.tag && !head ? `<span class="set-tag">${s.tag}</span>` : ""}
+        <span class="set-name">${esc(s.ko)}</span>
+        ${s.en && h >= 60 ? `<span class="set-en">${esc(s.en)}</span>` : ""}
+        <span class="set-row"><span class="set-time">${fmt(s.s)}<span class="t-end">–${fmt(s.e)}</span></span><span class="dots">${dots}</span></span>
+      </button>`;
+    }).join("");
+    return `<div class="g-col">${blocks}</div>`;
+  }).join("");
+  // food column: every friend's meals, side by side when they overlap
+  const meals = (state.gridMine ? state.friends.filter(f => f.id === state.me) : state.friends).flatMap(f => mealsOf(f, state.day).map(m => ({ f, m }))).sort((a, b) => a.m.s - b.m.s);
+  // overlapping meals share the full width as translucent layers; their name tags sit side by side
+  const clusters = [];
+  let curEnd = -1;
+  for (const x of meals) {
+    if (x.m.s >= curEnd) clusters.push([]);
+    clusters[clusters.length - 1].push(x); curEnd = Math.max(curEnd, x.m.e);
+  }
+  const food = clusters.flatMap(cl => cl.map(({ f, m }, k) => {
+    const i = cl.slice(0, k).filter(x => x.m.s === m.s).length;
+    const top = (Math.max(m.s, T0) - T0) * PX + 1, h = Math.max(22, (Math.min(m.e, T1) - Math.max(m.s, T0)) * PX - 2);
+    const solo = cl.length === 1;
+    const tag = solo
+      ? `<span class="meal-tag"><i class="dot" style="--fc:${f.color}">${esc(initial(f.name))}</i><b>${esc(f.name)}</b></span>${h > 40 ? `<small>${fmt(m.s)}–${fmt(m.e)}</small>` : ""}`
+      : `<i class="dot meal-dot" style="--fc:${f.color};--i:${i}">${esc(initial(f.name))}</i>`;
+    return `<button type="button" class="meal-blk${solo ? "" : " stacked"}" data-meal-of="${f.id}" style="--fc:${f.color};top:${top}px;height:${h}px" title="${esc(f.name)} · 쉬는 시간 · ${esc(breakLabel(m))} · ${fmt(m.s)}–${fmt(m.e)}" aria-label="${esc(f.name)} 쉬는 시간 ${esc(breakLabel(m))} ${fmt(m.s)}부터 ${fmt(m.e)}까지">${tag}</button>`;
+  })).join("");
+  cols += `<div class="g-col food">${food}</div>`;
+  return `<div class="g-head"><div class="g-corner"></div>${STAGES.map(s => `<div class="g-stage st-${s.id}"><b>${s.name}</b><small>stage${s.free ? " · FREE" : ""}</small></div>`).join("")}<div class="g-stage st-food"><b>BREAK</b><small>쉬는 시간</small></div><div class="gate">GATE OPEN 10:00</div></div>
+  <div class="g-body" style="height:${H}px">${lines}<div class="g-axis">${axis}</div>${cols}${nowM != null ? `<div class="nowline" style="top:${(nowM - T0) * PX}px"></div>` : ""}</div>`;
+}
+function renderLanes() {
+  if (!state.friends.length) {
+    return `<div class="board-empty"><strong>아직 기록할 친구가 없어요</strong><span>오른쪽 위 <b>인원 목록</b>에서 이름을 추가하고, 무대별 시간표에서 공연을 눌러보세요.<br>친구마다 하루 동선이 한 줄로 그려져요.</span></div>`;
+  }
+  const W = (T1 - T0) * LPX, nowM = nowMinForDay();
+  let ticks = "", grid = "";
+  for (let h = 12; h <= 22; h++) {
+    const x = (h * 60 - T0) * LPX;
+    ticks += `<div class="tick" style="left:${x}px"><b>${h}</b></div>`;
+    grid += `<div class="l-grid" style="left:${x}px"></div>`;
+  }
+  const shown = state.laneOnly.length ? state.friends.filter(f => state.laneOnly.includes(f.id)) : state.friends;
+  const rows = shown.map(f => {
+    const items = [
+      ...Object.keys(f.sets || {}).map(sid => SET_BY_ID[sid]).filter(s => s && s.day === state.day).map(s => ({ kind: "set", s: s.s, e: s.e, set: s })),
+      ...mealsOf(f, state.day).map(m => ({ kind: "meal", s: m.s, e: m.e, meal: m })),
+    ].sort((a, b) => a.s - b.s);
+    // greedy sub-rows for overlaps
+    const ends = [];
+    for (const x of items) { let r = ends.findIndex(e => e <= x.s); if (r < 0) { r = ends.length; ends.push(0); } ends[r] = x.e; x.row = r; }
+    const rowsN = Math.max(1, ends.length), H = rowsN * 38 + 8;
+    const blks = items.map(x => {
+      const left = (Math.max(x.s, T0) - T0) * LPX, w = Math.max(24, (Math.min(x.e, T1) - Math.max(x.s, T0)) * LPX - 2), top = 6 + x.row * 38;
+      if (x.kind === "meal") {
+        const lb = breakLabel(x.meal);
+        return `<div class="l-meal" data-meal-of="${f.id}" style="--fc:${f.color};left:${left}px;width:${w}px;top:${top}px" title="쉬는 시간 · ${esc(lb)} · ${fmt(x.s)}–${fmt(x.e)}"><b>${esc(lb)}</b><small>${fmt(x.s)}–${fmt(x.e)}</small></div>`;
+      }
+      return `<div class="l-blk st-${x.set.stage}" style="left:${left}px;width:${w}px;top:${top}px" title="${esc(x.set.ko)} · ${STAGE_NAME[x.set.stage]} · ${fmt(x.s)}–${fmt(x.e)}"><b>${esc(x.set.ko)}</b><small>${STAGE_NAME[x.set.stage]} ${fmt(x.s)}</small></div>`;
+    }).join("");
+    return {
+      name: `<div class="l-name" style="height:${H + 1}px"><i class="dot lg" style="--fc:${f.color}">${esc(initial(f.name))}</i><span>${esc(f.name)}</span></div>`,
+      track: `<div class="l-track" style="width:${W}px;height:${H + 1}px">${grid}${blks || `<span class="l-empty-row">이날 기록 없음</span>`}</div>`,
+    };
+  });
+  return `<div class="lanes">
+    <div class="l-names"><div class="l-name axis">FRIEND</div>${rows.map(r => r.name).join("")}</div>
+    <div class="l-scroll"><div class="l-wrap" style="width:${W}px">
+      <div class="l-axis-row" style="width:${W}px">${ticks}</div>
+      ${rows.map(r => r.track).join("")}
+      ${nowM != null ? `<div class="nowline" style="top:32px;bottom:0;left:${(nowM - T0) * LPX}px;right:auto;width:0;border-top:0;border-left:2px solid var(--hot)"></div>` : ""}
+    </div></div>
+  </div>`;
+}
+function renderGridFilter() {
+  const el = $("gridFilter");
+  el.hidden = state.view !== "grid";
+  if (el.hidden) return;
+  const me = state.friends.find(f => f.id === state.me);
+  const mine = state.gridMine && !!me;
+  let sum = "";
+  if (mine) {
+    const picks = SETS.filter(x => x.day === state.day && me.sets && me.sets[x.id]).length;
+    const br = mealsOf(me, state.day).length;
+    sum = `<span class="lf-sum">${esc(me.name)} · 공연 ${picks}${br ? ` · 쉬는 시간 ${br}` : ""}</span>`;
+  }
+  el.innerHTML = `<span class="lf-label">보기</span><button type="button" class="lf-chip" data-gmode="all" aria-pressed="${!mine}">전체 시간표</button><button type="button" class="lf-chip" data-gmode="mine" aria-pressed="${mine}">${me ? `<i class="dot" style="--fc:${me.color}">${esc(initial(me.name))}</i>` : ""}내 시간표</button>${sum}`;
+}
+$("gridFilter").addEventListener("click", e => {
+  const b = e.target.closest("[data-gmode]"); if (!b) return;
+  if (b.dataset.gmode === "mine" && !state.friends.some(f => f.id === state.me)) {
+    openDrawer(); hint("내 시간표를 보려면 먼저 내 이름을 고르세요.", true); return;
+  }
+  state.gridMine = b.dataset.gmode === "mine";
+  store.set("burock.gridMine", state.gridMine ? "1" : "0");
+  renderBoard();
+});
+function renderLaneFilter() {
+  const el = $("laneFilter");
+  el.hidden = state.view !== "lanes" || state.friends.length < 2;
+  if (el.hidden) return;
+  state.laneOnly = state.laneOnly.filter(id => state.friends.some(f => f.id === id));
+  const all = !state.laneOnly.length;
+  el.innerHTML = `<span class="lf-label">보기</span><button type="button" class="lf-chip" data-lane="" aria-pressed="${all}">모든 친구</button>` +
+    state.friends.map(f => `<button type="button" class="lf-chip" data-lane="${f.id}" aria-pressed="${!all && state.laneOnly.includes(f.id)}"><i class="dot" style="--fc:${f.color}">${esc(initial(f.name))}</i>${esc(f.name)}</button>`).join("");
+}
+$("laneFilter").addEventListener("click", e => {
+  const b = e.target.closest("[data-lane]"); if (!b) return;
+  const id = b.dataset.lane;
+  if (!id) state.laneOnly = [];
+  else if (state.laneOnly.includes(id)) state.laneOnly = state.laneOnly.filter(x => x !== id);
+  else state.laneOnly = [...state.laneOnly, id];
+  if (state.laneOnly.length === state.friends.length) state.laneOnly = [];
+  renderBoard();
+});
+/* ---------- official guide map ---------- */
+const GUIDE_SRC = "https://busanrockfestival.com/wp-content/uploads/2026/09/KakaoTalk_Photo_2026-09-23-16-22-11-002.jpeg";
+function openGuide() {
+  const img = $("guideImg");
+  $("guide").hidden = false;
+  if (!img.src) {
+    img.onload = () => { img.hidden = false; $("guideMsg").hidden = true; };
+    img.onerror = () => { $("guideMsg").innerHTML = '이미지를 불러오지 못했어요. <a href="https://busanrockfestival.com/notice/2026notice_19/" target="_blank" rel="noopener">공식 홈페이지에서 보기</a>'; };
+    img.src = GUIDE_SRC;
+  }
+  $("guideClose").focus();
+}
+function closeGuide() { $("guide").hidden = true; $("guideBtn").focus(); }
+$("guideBtn").addEventListener("click", openGuide);
+$("guideClose").addEventListener("click", closeGuide);
+$("guideZoom").addEventListener("click", () => {
+  const body = $("guideBody"), on = !body.classList.contains("zoom");
+  body.classList.toggle("zoom", on);
+  $("guideZoom").setAttribute("aria-pressed", String(on));
+  $("guideZoom").textContent = on ? "화면에 맞추기" : "확대";
+  if (on) { body.scrollLeft = (body.scrollWidth - body.clientWidth) / 2; body.scrollTop = 0; }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("guide").hidden) closeGuide(); });
+
+/* ---------- stage map ---------- */
+// positions traced from the official 행사장 가이드맵 (viewBox 360 x 450)
+const MAP_POS = {
+  green:   { x: 258, y: 34,  w: 60, h: 64, label: [288, 26] },
+  wave:    { x: 117, y: 81,  w: 32, h: 33, label: [128, 75] },
+  samrock: { x: 192, y: 125, w: 48, h: 42, label: [216, 114] },
+  hidden:  { x: 124, y: 244, w: 40, h: 80, rx: 20, label: [144, 236], sub: "FREE" },
+  river:   { x: 106, y: 364, w: 88, h: 62, label: [150, 440] },
+  food:    { x: 252, y: 164, w: 46, h: 126, label: [275, 158] },
+  rest:    { x: 12,  y: 300, w: 70, h: 80,  label: [47, 294] },
+};
+function defaultMapMin() {
+  const n = kstNow().min;
+  return Math.min(T1, Math.max(T0, Math.round(n / 10) * 10));
+}
+function renderMapCtrl() {
+  const el = $("mapCtrl");
+  el.hidden = state.view !== "map";
+  if (el.hidden) return;
+  if (state.mapMin == null) state.mapMin = defaultMapMin();
+  $("mapTime").value = state.mapMin;
+  $("mapTimeOut").textContent = fmt(state.mapMin);
+}
+$("mapTime").addEventListener("input", e => {
+  state.mapMin = Number(e.target.value);
+  $("mapTimeOut").textContent = fmt(state.mapMin);
+  $("board").innerHTML = renderMap();
+});
+$("mapNow").addEventListener("click", () => {
+  // jump to the current clock time (KST) on the selected day
+  const n = kstNow().min;
+  state.mapMin = Math.min(T1, Math.max(T0, Math.round(n / 10) * 10));
+  renderBoard();
+  if (n < T0 || n > T1) toast(n < T0 ? "아직 공연 전 시간이라 첫 공연 시각으로 맞췄어요" : "공연이 끝난 시간이라 마지막 시각으로 맞췄어요");
+});
+function mapState(t) {
+  const out = {};
+  for (const st of STAGES) {
+    const list = SETS.filter(s => s.day === state.day && s.stage === st.id);
+    const cur = list.find(s => s.s <= t && t < s.e);
+    const next = list.find(s => s.s > t);
+    const who = cur ? state.friends.filter(f => f.sets && f.sets[cur.id]) : [];
+    out[st.id] = { cur, next, who };
+  }
+  const at = (f, pred) => mealsOf(f, state.day).find(m => pred(m) && m.s <= t && t < m.e);
+  out.food = { who: [] };
+const resting = state.friends.map(f => [f, at(f, isRest)]).filter(x => x[1]);
+  const spotOf = m => state.spots.some(sp => sp.id === m.spot) ? m.spot : state.spots.length === 1 ? state.spots[0].id : "";
+  out.mats = Object.fromEntries(state.spots.map(sp => [sp.id, []]));
+  const loose = [];
+  for (const [f, m] of resting) { const id = spotOf(m); if (id) out.mats[id].push([f, m]); else loose.push([f, m]); }
+  out.rest = { who: loose.map(x => x[0]), spots: loose };
+  return out;
+}
+// map geometry is authored (and mats are stored) in a 360-wide space; wide screens draw it stretched sideways
+let SX = 1;
+const X = v => +(v * SX).toFixed(1);
+function dotsSvg(pos, who) {
+  const cols = Math.max(1, Math.floor((pos.w * SX - 6) / 16));
+  return who.map((f, i) => {
+    const cx = X(pos.x) + 11 + (i % cols) * 16, cy = pos.y + pos.h - 10 - Math.floor(i / cols) * 16;
+    return `<g><circle cx="${cx}" cy="${cy}" r="7" fill="${f.color}" stroke="var(--surface)" stroke-width="1.5"></circle><text class="m-dot-t" x="${cx}" y="${cy + 2.5}" text-anchor="middle">${esc(initial(f.name))}</text></g>`;
+  }).join("");
+}
+function matSvg(sp, resting) {
+  const dots = resting.map(([f], i) => {
+    const cx = 22 + (i % 4) * 15, cy = -4 + Math.floor(i / 4) * 15;
+    return `<circle cx="${cx}" cy="${cy}" r="7" fill="${f.color}" stroke="var(--surface)" stroke-width="1.5"></circle><text class="m-dot-t" x="${cx}" y="${cy + 2.5}" text-anchor="middle">${esc(initial(f.name))}</text>`;
+  }).join("");
+  return `<g class="mat" data-spot="${sp.id}" transform="translate(${X(sp.x)} ${sp.y})" role="button" aria-label="${esc(sp.name)} 돗자리, 끌어서 옮기기">
+    <circle r="24" fill="transparent"></circle>
+    <rect class="mat-body" x="-15" y="-10" width="30" height="20" rx="3" fill="url(#matPat)" stroke="var(--ink)" stroke-width="1.2" transform="rotate(-8)"></rect>
+    <text class="mat-name" y="-16" text-anchor="middle">${esc(sp.name)}</text>
+    ${dots}
+  </g>`;
+}
+function renderMap() {
+  SX = narrowMQ.matches ? 1 : 1.4;
+  const t = state.mapMin ?? defaultMapMin();
+  const ms = mapState(t);
+  const stageFill = { samrock: "var(--s-samrock)", green: "var(--s-green)", river: "var(--s-river)", wave: "var(--s-wave)", hidden: "var(--s-hidden)" };
+  const stagesSvg = STAGES.map(st => {
+    const p = MAP_POS[st.id], m = ms[st.id];
+    return `<g>
+      <rect class="m-stage" x="${X(p.x)}" y="${p.y}" width="${X(p.w)}" height="${p.h}" rx="${p.rx || 5}" fill="${stageFill[st.id]}" opacity="${m.cur ? 1 : .4}"></rect>
+      <text class="m-name" x="${X(p.label[0])}" y="${p.label[1]}" text-anchor="middle">${st.name}</text>
+      ${p.sub ? `<text class="m-sub" x="${X(p.label[0])}" y="${p.y + 14}" text-anchor="middle">${p.sub}</text>` : ""}
+      ${dotsSvg(p, m.who)}
+    </g>`;
+  }).join("");
+  const fp = MAP_POS.food;
+  const label = STAGES.map(st => `${st.name} ${ms[st.id].cur ? ms[st.id].cur.ko : "공연 없음"}`).join(", ");
+  const svg = `<svg class="map-svg" viewBox="0 0 ${X(360)} 450" role="img" aria-label="${esc(fmt(t) + " 무대 지도: " + label)}">
+    <g transform="scale(${SX} 1)">
+    <path class="m-ground" d="M113 48 H176 V70 H250 V26 H325 V300 H212 V447 H97 V240 L87 214 Z"></path>
+    <path class="m-path" d="M117 53 H170 V356 M117 53 L92 205 M53 134 C55 168 68 192 94 212 M114.5 119 H187 M114.5 119 V194 M153.5 119 V172 M187 119 V172 M114.5 172 H245 M114.5 185 H203 M245 101 V262 H170 M94 212 H249 M203 172 V238.5 M203 187 A25 25 0 0 1 203 237 M124 238.5 H203 M145 356 H199 V386 M112 194 L94 212 L112 230 L130 212 Z"></path>
+    <rect x="150" y="204" width="40" height="18" rx="3" fill="var(--line)"></rect>
+    <path class="m-walk" d="M130 0 L117 53 H170 V62 M53 118 V134 C55 168 68 192 92 210"></path>
+    <path class="m-arrow" d="M170 66 l-4 -6 h8 z M94 212 l-7 -3 l3 7 z"></path>
+    </g>
+    <rect class="m-gate" x="${X(171) - 20}" y="66" width="40" height="14" rx="7"></rect>
+    <text class="m-gate-t" x="${X(171)}" y="75.8" text-anchor="middle" style="font-size:6.5px">MAIN GATE</text>
+    <rect x="${X(fp.x)}" y="${fp.y}" width="${X(fp.w)}" height="${fp.h}" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="3 2"></rect>
+    <text class="m-name" x="${X(fp.label[0])}" y="${fp.label[1]}" text-anchor="middle">FOOD</text>
+    <text class="m-sub food" x="${X(fp.x + fp.w / 2)}" y="${fp.y + 14}" text-anchor="middle">푸드 라운지</text>
+    ${dotsSvg(fp, ms.food.who)}
+    ${stagesSvg}
+    <circle cx="${X(52)}" cy="114" r="4" fill="var(--ink)"></circle>
+    <text class="m-poi" x="${X(52)}" y="128" text-anchor="middle">셔틀버스 승차장</text>
+    <text class="m-poi" x="${X(112)}" y="22" text-anchor="middle">매표소</text>
+    <text class="m-poi" x="${X(171)}" y="203" text-anchor="middle">중앙 광장</text>
+    <text class="m-poi" x="${X(86)}" y="96" text-anchor="middle">물품보관소</text>
+    <defs><pattern id="matPat" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="var(--s-samrock)"></rect><rect width="3" height="3" fill="var(--hot)"></rect><rect x="3" y="3" width="3" height="3" fill="var(--hot)"></rect></pattern></defs>
+    ${state.spots.map(sp => matSvg(sp, ms.mats[sp.id] || [])).join("")}
+  </svg>`;
+  const dotList = who => who.length ? `<span class="dots">${who.map(f => `<i class="dot" style="--fc:${f.color}" title="${esc(f.name)}">${esc(initial(f.name))}</i>`).join("")}</span>` : "";
+  const rows = STAGES.map(st => {
+    const m = ms[st.id];
+    const body = m.cur
+      ? `<span class="ml-set">${esc(m.cur.ko)}</span> <span class="ml-time">${fmt(m.cur.s)}–${fmt(m.cur.e)}</span>`
+      : `<span class="ml-idle">${m.next ? `다음: ${esc(m.next.ko)} ${fmt(m.next.s)}` : "오늘 공연 끝"}</span>`;
+    return `<li><i class="sw st-${st.id}"></i><span style="min-width:0"><span class="ml-stage">${st.name}</span><br>${body}</span>${dotList(m.who)}</li>`;
+  }).join("");
+  const fw = ms.food.who;
+  const foodRow = `<li><i class="sw" style="background:var(--surface);border-style:dashed;border-color:var(--ink)"></i><span><span class="ml-stage">FOOD</span><br><span class="ml-idle">${fw.length ? `${fw.map(f => esc(f.name)).join(", ")} 식사 중` : "식사 중인 친구 없음"}</span></span>${dotList(fw)}</li>`;
+  const rs = ms.rest.spots;
+  const restRow = rs.length ? `<li><i class="sw restpat"></i><span><span class="ml-stage">쉬는 중</span><br><span class="ml-idle">${rs.map(([f, m]) => `${esc(f.name)} (${esc(breakLabel(m))})`).join(", ")} · 돗자리 안 고름</span></span>${dotList(ms.rest.who)}</li>` : "";
+  const matRows = state.spots.map(sp => {
+    const here = ms.mats[sp.id] || [];
+    if (state.confirmSpot === sp.id) {
+      return `<li class="spot-row"><i class="sw matpat"></i><span style="flex:1 1 8em">${esc(sp.name)} 돗자리를 지울까요?</span><button type="button" class="yes" data-spot-del-yes="${sp.id}">삭제</button><button type="button" data-spot-del-no>취소</button></li>`;
+    }
+    return `<li class="spot-row"><i class="sw matpat"></i><input id="spotName-${sp.id}" data-spot-name="${sp.id}" value="${esc(sp.name)}" maxlength="12" aria-label="돗자리 이름"><button type="button" data-spot-del="${sp.id}">삭제</button>${here.length ? `<span class="ml-idle" style="flex:1 1 100%">${here.map(([f]) => esc(f.name)).join(", ")} 쉬는 중</span>${dotList(here.map(x => x[0]))}` : ""}</li>`;
+  }).join("");
+  return `<div class="map-wrap">${svg}<ul class="map-list" aria-label="${fmt(t)} 무대별 공연">${rows}${restRow}${matRows}</ul>
+    <p class="map-foot">위치는 공식 가이드맵을 단순하게 옮긴 거예요. <b>+ 돗자리</b>로 우리 자리를 찍고, 지도에서 끌어서 옮길 수 있어요. 쉬는 시간을 넣을 때 돗자리를 고르면 그 자리에 표시돼요. 화장실·물품보관소 같은 편의시설은 위의 <b>공식 가이드맵</b> 버튼으로 보세요.</p></div>`;
+}
+
+/* ---------- picnic mats: add, drag, rename, delete ---------- */
+function canWrite() {
+  if (!db) { toast("지금 화면에서는 저장할 수 없어요"); return false; }
+  if (state.readOnly) { toast("보기 전용이라 저장할 수 없어요"); return false; }
+  return true;
+}
+function spotBody(sp) { return { name: sp.name, x: Math.round(sp.x), y: Math.round(sp.y), createdAt: sp.createdAt || Date.now() }; }
+function saveSpot(sp) {
+  queues["spot:" + sp.id] = (queues["spot:" + sp.id] || Promise.resolve()).then(() => db.doc("spots/" + sp.id).set(spotBody(sp))).catch(writeError);
+}
+$("addSpot").addEventListener("click", () => {
+  if (!canWrite()) return;
+  const ref = db.collection("spots").doc();
+  const sp = { id: ref.id, name: `돗자리 ${state.spots.length + 1}`, x: 206, y: 226, createdAt: Date.now() };
+  state.spots = [...state.spots, sp];
+  renderBoard(); renderSpotSelect();
+  toast("돗자리를 놓았어요. 끌어서 자리를 옮기세요");
+  saveSpot(sp);
+});
+function svgPoint(svg, e) {
+  const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+$("board").addEventListener("pointerdown", e => {
+  const g = e.target.closest(".mat"); if (!g) return;
+  const sp = state.spots.find(x => x.id === g.dataset.spot); if (!sp) return;
+  e.preventDefault();
+  const svg = g.ownerSVGElement, p = svgPoint(svg, e);
+  state.drag = { sp, g, svg, dx: p.x - X(sp.x), dy: p.y - sp.y, x: sp.x, y: sp.y, moved: false, id: e.pointerId };
+  g.setPointerCapture(e.pointerId);
+  g.classList.add("dragging");
+});
+$("board").addEventListener("pointermove", e => {
+  const d = state.drag; if (!d || e.pointerId !== d.id) return;
+  const p = svgPoint(d.svg, e);
+  const x = Math.min(346, Math.max(14, (p.x - d.dx) / SX)), y = Math.min(440, Math.max(24, p.y - d.dy));
+  if (Math.abs(x - d.sp.x) + Math.abs(y - d.sp.y) > 2) d.moved = true;
+  d.x = x; d.y = y;
+  d.g.setAttribute("transform", `translate(${X(x)} ${y})`);
+});
+function endDrag(e) {
+  const d = state.drag; if (!d || e.pointerId !== d.id) return;
+  state.drag = null;
+  d.g.classList.remove("dragging");
+  if (d.moved) {
+    if (canWrite()) { d.sp.x = d.x; d.sp.y = d.y; saveSpot(d.sp); toast(`${d.sp.name} 자리를 옮겼어요`); }
+  } else toast(`${d.sp.name} · 끌어서 옮길 수 있어요`);
+  renderBoard();
+}
+$("board").addEventListener("pointerup", endDrag);
+$("board").addEventListener("pointercancel", endDrag);
+$("board").addEventListener("change", e => {
+  const inp = e.target.closest("[data-spot-name]"); if (!inp) return;
+  const sp = state.spots.find(x => x.id === inp.dataset.spotName); if (!sp) return;
+  const name = inp.value.trim();
+  if (!name) { inp.value = sp.name; return; }
+  if (!canWrite() || name === sp.name) return;
+  sp.name = name; saveSpot(sp); renderSpotSelect(); toast("돗자리 이름을 바꿨어요");
+});
+$("board").addEventListener("click", e => {
+  const del = e.target.closest("[data-spot-del]");
+  if (del) { state.confirmSpot = del.dataset.spotDel; renderBoard(); return; }
+  if (e.target.closest("[data-spot-del-no]")) { state.confirmSpot = ""; renderBoard(); return; }
+  const yes = e.target.closest("[data-spot-del-yes]");
+  if (yes && canWrite()) {
+    const id = yes.dataset.spotDelYes;
+    state.confirmSpot = ""; state.spots = state.spots.filter(x => x.id !== id);
+    renderBoard(); renderSpotSelect();
+    db.doc("spots/" + id).delete().then(() => toast("돗자리를 지웠어요")).catch(writeError);
+  }
+});
+
+/* ---------- set detail card ---------- */
+let popTimer = 0, popStart = null, suppressClick = false, popFor = "";
+function showPop(el, touch) {
+  const set = SET_BY_ID[el.dataset.set]; if (!set) return;
+  const who = state.friends.filter(f => f.sets && f.sets[set.id]);
+  const pop = $("setPop");
+  pop.innerHTML = `<span class="sp-stage"><i class="sw st-${set.stage}"></i>${STAGE_NAME[set.stage]} · ${DAYS[set.day - 1].label} ${DAYS[set.day - 1].dow}</span>
+    <span class="sp-name">${esc(set.ko)}</span>${set.en ? `<span class="sp-en">${esc(set.en)}</span>` : ""}
+    <span class="sp-time">${fmt(set.s)}–${fmt(set.e)} · ${set.e - set.s}분</span>
+    ${who.length ? `<span class="sp-who">${who.map(f => `<span><i class="dot" style="--fc:${f.color}">${esc(initial(f.name))}</i>${esc(f.name)}</span>`).join("")}</span>` : `<span class="sp-none">아직 고른 친구가 없어요</span>`}
+    ${touch ? `<span class="sp-hint">짧게 누르면 선택 · 해제</span>` : ""}`;
+  pop.hidden = false; popFor = set.id;
+  const r = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight, m = 8;
+  let left = Math.min(Math.max(m, r.left + r.width / 2 - pw / 2), innerWidth - pw - m);
+  let top = r.top - ph - m;
+  if (top < m) top = Math.min(r.bottom + m, innerHeight - ph - m);
+  pop.style.left = left + "px"; pop.style.top = top + "px";
+}
+function hidePop() { $("setPop").hidden = true; popFor = ""; }
+$("board").addEventListener("pointerover", e => {
+  if (e.pointerType !== "mouse") return;
+  const el = e.target.closest("[data-set]"); if (el && popFor !== el.dataset.set) showPop(el, false);
+});
+$("board").addEventListener("pointerout", e => {
+  if (e.pointerType !== "mouse") return;
+  const el = e.target.closest("[data-set]"); if (el && !el.contains(e.relatedTarget)) hidePop();
+});
+$("board").addEventListener("pointerdown", e => {
+  if (e.pointerType === "mouse") return;
+  const el = e.target.closest("[data-set]"); if (!el) { hidePop(); return; }
+  clearTimeout(popTimer); popStart = { x: e.clientX, y: e.clientY };
+  popTimer = setTimeout(() => { suppressClick = true; showPop(el, true); if (navigator.vibrate) try { navigator.vibrate(10); } catch {} }, 450);
+});
+$("board").addEventListener("pointermove", e => {
+  if (!popStart || e.pointerType === "mouse") return;
+  if (Math.abs(e.clientX - popStart.x) + Math.abs(e.clientY - popStart.y) > 10) { clearTimeout(popTimer); popStart = null; }
+});
+const endPress = () => { clearTimeout(popTimer); popStart = null; };
+$("board").addEventListener("pointerup", endPress);
+$("board").addEventListener("pointercancel", endPress);
+$("board").addEventListener("contextmenu", e => { if (e.target.closest("[data-set]")) e.preventDefault(); });
+document.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse" && !e.target.closest("[data-set]")) hidePop(); });
+window.addEventListener("scroll", hidePop, { passive: true });
+
+function fitSetNames() {
+  if (!narrowMQ.matches || state.view !== "grid") return;
+  // phone timetable, per block: fit the band name, then show friends as lettered dots if they fit,
+  // and only fall back to small colour dots when the block is really out of room
+  for (const blk of document.querySelectorAll("#board .set")) {
+    const el = blk.querySelector(".set-name"), dots = blk.querySelector(".dots");
+    const tooWide = () => el.scrollWidth > el.clientWidth + 0.5;
+    const tooTall = () => blk.scrollHeight > blk.clientHeight + 1;
+    const shrink = (min) => { let size = parseFloat(el.style.fontSize) || 11; while ((tooWide() || tooTall()) && size > min) { size -= 0.5; el.style.fontSize = size + "px"; } };
+    const time = blk.querySelector(".set-time");
+    el.style.fontSize = ""; el.style.wordBreak = ""; time.hidden = false;
+    dots.classList.remove("many", "tight"); blk.classList.remove("spill"); dots.hidden = true;
+    shrink(7.5);
+    if (tooWide()) { el.style.wordBreak = "break-all"; el.style.fontSize = "10px"; shrink(6.5); }
+    dots.hidden = false;
+    if (!dots.children.length || !tooTall()) continue;
+    time.hidden = true;               // short block: drop the time, keep every friend readable
+    if (!tooTall()) continue;
+    dots.classList.add("tight");      // smaller lettered dots (never colour-only)
+    if (tooTall()) shrink(6.5);
+    if (tooTall()) blk.classList.add("spill");  // last resort: let the dots show just below the block
+    if (tooTall()) shrink(6.5);
+  }
+}
+function renderBoard(resetScroll) {
+  if (state.drag) return;
+  renderLaneFilter();
+  const b = $("board");
+  const keep = { l: b.scrollLeft, t: b.scrollTop };
+  const narrow = narrowMQ.matches;
+  PX = narrow ? 2.3 : 2.5;
+  b.classList.toggle("grid-mode", state.view === "grid");
+  b.classList.toggle("grid-mine", state.view === "grid" && state.gridMine && !!state.me);
+  renderGridFilter();
+  renderMapCtrl();
+  b.classList.toggle("map-mode", state.view === "map");
+  b.classList.toggle("lanes-mode", state.view === "lanes");
+  const ls = b.querySelector(".l-scroll"), keepLane = ls ? ls.scrollLeft : 0;
+  b.innerHTML = state.view === "grid" ? renderGrid() : state.view === "lanes" ? renderLanes() : renderMap();
+  fitSetNames();
+  if (resetScroll) {
+    const nowM = nowMinForDay();
+    if (state.view === "grid" && narrow) { const nl = b.querySelector(".nowline"); if (nl) nl.scrollIntoView({ block: "center" }); }
+    else if (state.view === "grid") { b.scrollLeft = 0; b.scrollTop = nowM != null ? Math.max(0, (nowM - T0) * PX - 120) : 0; }
+    else if (state.view === "lanes") { const l = b.querySelector(".l-scroll"); if (l) l.scrollLeft = nowM != null ? Math.max(0, (nowM - T0) * LPX - 120) : 0; }
+  } else {
+    b.scrollLeft = keep.l; b.scrollTop = keep.t;
+    const l = b.querySelector(".l-scroll"); if (l) l.scrollLeft = keepLane;
+  }
+}
+$("board").addEventListener("click", e => {
+  const s = e.target.closest("[data-set]");
+  if (s) { if (suppressClick) { suppressClick = false; return; } toggleSet(s.dataset.set); return; }
+  const m = e.target.closest("[data-meal-of]");
+  if (m) {
+    const f = state.friends.find(x => x.id === m.dataset.mealOf);
+    if (f && f.id === state.me) { openDrawer(); $("mealSec").scrollIntoView({ block: "start" }); }
+    else if (f) toast(`${f.name}의 쉬는 시간이에요`);
+  }
+});
+
+/* ---------- now strip ---------- */
+function renderNow() {
+  const el = $("nowStrip"), n = kstNow(), td = todayDay();
+  if (!td || n.min < 11 * 60 || n.min > T1 || !state.friends.length) { el.hidden = true; return; }
+  const items = state.friends.map(f => {
+    const meal = mealsOf(f, td).find(m => m.s <= n.min && n.min < m.e);
+    const cur = Object.keys(f.sets || {}).map(sid => SET_BY_ID[sid]).find(s => s && s.day === td && s.s <= n.min && n.min < s.e);
+    const where = meal ? `→ 쉬는 중 · ${esc(breakLabel(meal))}` : cur ? `→ ${STAGE_NAME[cur.stage]} · ${esc(cur.ko)}` : "";
+    return `<span class="now-item"><i class="dot" style="--fc:${f.color}">${esc(initial(f.name))}</i>${esc(f.name)} ${where ? `<span class="where">${where}</span>` : `<span class="none">어딘가</span>`}</span>`;
+  }).join("");
+  el.innerHTML = `<span class="now-time">${fmt(n.min)} 지금</span>${items}`;
+  el.hidden = false;
+}
+
+let toastT;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1600); }
+
+/* ---------- boot ---------- */
+// After the festival the page closes itself (the Firestore rules lock the data at the same moment).
+const FESTIVAL_END = Date.parse("2026-10-07T00:00:00+09:00");
+const festivalOver = Date.now() >= FESTIVAL_END;
+if (festivalOver) $("ended").hidden = false;
+renderKind();
+narrowMQ.addEventListener("change", () => renderBoard(true));
+renderDday(); renderTabs(); renderBoard(true);
+setInterval(() => { renderDday(); renderNow(); if (nowMinForDay() != null) renderBoard(); }, 60000);
+
+(async () => {
+  try {
+    const cfg = window.FIREBASE_CONFIG;
+    if (!festivalOver && window.firebase && cfg && cfg.projectId && !String(cfg.projectId).startsWith("YOUR_")) {
+      firebase.initializeApp(cfg);
+      db = firebase.firestore();
+    }
+  } catch (e) { console.error(e); db = null; }
+  if (!db) {
+    state.loaded = true; state.noDb = true;
+    $("chips").innerHTML = `<li class="empty-chips">이 화면에서는 저장소 설정(config.js)이 아직 안 돼 있어서 시간표만 볼 수 있어요. README의 설정 방법을 따라 해 주세요.</li>`;
+    $("addForm").hidden = true; $("editBtn").hidden = true;
+    renderPeopleBtn();
+    return;
+  }
+  db.collection("friends").orderBy("createdAt").onSnapshot(snap => {
+    state.friends = snap.docs.map(d => ({ id: d.id, ...structuredClone(d.data()) }));
+    state.loaded = true;
+    if (state.me && !state.friends.some(f => f.id === state.me) && !snap.metadata.fromCache) { state.me = ""; store.set("burock.me", ""); }
+    renderChips(); renderBoard(); renderNow();
+  }, err => {
+    state.loaded = true;
+    $("chips").innerHTML = `<li class="empty-chips">인원 기록 연결이 끊겼어요. 새로고침해 주세요.</li>`;
+  });
+  db.collection("spots").orderBy("createdAt").onSnapshot(snap => {
+    state.spots = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderSpotSelect();
+    if (state.view === "map") renderBoard();
+  }, err => console.warn("spots", err));
+})();
+</script>
+
+</body>
+</html>

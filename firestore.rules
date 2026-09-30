@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 2026-10-07 00:00 (한국 시간) 이후에는 읽기·쓰기가 모두 막혀요. (= 2026-10-06 15:00 UTC)
+    function open() {
+      return request.time < timestamp.date(2026, 10, 6) + duration.value(15, 'h');
+    }
+
+    // 친구 기록: 링크를 아는 사람은 누구나 보고 기록할 수 있어요. 형식이 맞는 데이터만 받아요.
+    match /friends/{friendId} {
+      allow read, delete: if open();
+      allow create, update: if open() &&
+        request.resource.data.keys().hasOnly(['name', 'color', 'createdAt', 'sets', 'meals']) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() > 0 &&
+        request.resource.data.name.size() <= 10 &&
+        request.resource.data.color is string &&
+        request.resource.data.color.size() <= 9 &&
+        request.resource.data.createdAt is number &&
+        request.resource.data.sets is map &&
+        request.resource.data.sets.size() <= 120 &&
+        request.resource.data.meals is list &&
+        request.resource.data.meals.size() <= 30;
+    }
+
+    // 지도에 놓는 돗자리
+    match /spots/{spotId} {
+      allow read, delete: if open();
+      allow create, update: if open() &&
+        request.resource.data.keys().hasOnly(['name', 'x', 'y', 'createdAt']) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() > 0 &&
+        request.resource.data.name.size() <= 12 &&
+        request.resource.data.x is number &&
+        request.resource.data.y is number &&
+        request.resource.data.x >= 0 && request.resource.data.x <= 360 &&
+        request.resource.data.y >= 0 && request.resource.data.y <= 450 &&
+        request.resource.data.createdAt is number;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
