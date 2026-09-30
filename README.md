@@ -1,4 +1,4 @@
-# 부산국제록페스티벌 친구 동선
+# 부산국제록페스티벌
 
 **👉 바로 시작하기: https://razberryj.github.io/busan-rock-play/**
 
