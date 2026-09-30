@@ -324,6 +324,24 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw
 .src { color: var(--muted); font-size: 12px; margin: 0; }
 .src a { color: inherit; }
 
+.setup { position: fixed; inset: 0; z-index: 90; background: var(--bg); overflow-y: auto; padding: 24px 16px calc(32px + env(safe-area-inset-bottom, 0px)); }
+.setup-card { max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.setup-card h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 7vw, 42px); margin: 0; }
+.setup-lead { margin: 0; color: var(--muted); line-height: 1.6; }
+.setup-steps { margin: 0; padding: 0; list-style: none; counter-reset: st; display: flex; flex-direction: column; gap: 12px; }
+.setup-steps > li { counter-increment: st; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 12px 48px; position: relative; display: flex; flex-direction: column; gap: 6px; line-height: 1.55; }
+.setup-steps > li::before { content: counter(st); position: absolute; left: 14px; top: 12px; width: 24px; height: 24px; border-radius: 50%; background: var(--bar); color: var(--bar-ink); font-family: var(--f-display); display: grid; place-items: center; font-size: 13px; }
+.setup-steps span { color: var(--muted); font-size: 13px; }
+.setup-steps a { color: var(--ink); }
+.setup-card code { font-family: var(--f-mono); font-size: 12px; background: var(--surface-2); padding: 0 4px; border-radius: 4px; }
+.setup-card textarea, .setup-done input { width: 100%; font-family: var(--f-mono); font-size: 12px; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 10px; resize: vertical; }
+.setup-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.setup-row .btn { text-decoration: none; }
+.setup-ok { font-size: 12px; color: var(--muted); }
+.setup-msg { margin: 0; font-size: 13px; }
+.setup-msg.bad { color: var(--hot); }
+.setup-done { background: var(--surface); border: 2px solid var(--ink); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.setup-done span { color: var(--muted); font-size: 13px; }
 .ended { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: grid; place-items: center; padding: 16px; }
 .ended-card { max-width: 360px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
 .ended-card h2 { font-family: var(--f-display); font-weight: 400; font-size: 40px; margin: 0; }
@@ -402,6 +420,42 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw
 <body>
 
 
+<div class="setup" id="setup" hidden>
+  <div class="setup-card">
+    <div class="eyebrow">2026 Busan International Rock Festival · 10.2–10.4</div>
+    <h2>우리 그룹 만들기</h2>
+    <p class="setup-lead">친구들끼리 볼 공연, 쉬는 시간, 돗자리 자리를 같이 기록하는 시간표예요. 기록은 <b>우리 그룹 Firebase</b>에만 저장돼요. 구글 계정만 있으면 무료로 10분이면 만들어요.</p>
+    <ol class="setup-steps">
+      <li>
+        <b>Firebase 프로젝트 만들기</b>
+        <span><a href="https://console.firebase.google.com" target="_blank" rel="noopener">Firebase 콘솔</a> → 프로젝트 추가 (Google 애널리틱스는 꺼도 돼요). 요금제는 <b>Spark(무료)</b> 그대로 두세요.</span>
+      </li>
+      <li>
+        <b>Firestore 만들기</b>
+        <span>왼쪽 메뉴 <b>데이터베이스 및 스토리지 → Firestore → 데이터베이스 만들기</b> · 위치 <code>asia-northeast3 (Seoul)</code> · <b>프로덕션 모드</b></span>
+      </li>
+      <li>
+        <b>보안 규칙 붙여 넣기</b>
+        <span>Firestore 위쪽 <b>규칙</b> 탭 → 원래 내용을 지우고 아래 규칙을 붙여 넣은 뒤 <b>게시</b>. 2026-10-07 0시가 지나면 자동으로 잠겨요.</span>
+        <div class="setup-row"><button type="button" class="btn" id="copyRules">규칙 복사</button><span class="setup-ok" id="rulesMsg"></span></div>
+        <textarea id="rulesText" readonly rows="4" aria-label="보안 규칙"></textarea>
+      </li>
+      <li>
+        <b>웹 앱 등록하고 설정 붙여 넣기</b>
+        <span><b>설정(톱니바퀴) → 프로젝트 설정 → 내 앱 → 웹(&lt;/&gt;)</b>으로 앱 등록 → 나오는 <code>const firebaseConfig = { ... }</code> 부분을 통째로 복사해서 아래에 붙여 넣어요.</span>
+        <textarea id="cfgText" rows="6" placeholder="const firebaseConfig = {&#10;  apiKey: &quot;...&quot;,&#10;  projectId: &quot;...&quot;,&#10;  ...&#10;};" aria-label="firebaseConfig 붙여 넣기"></textarea>
+        <div class="setup-row"><button type="button" class="btn" id="makeLink">연결 확인하고 링크 만들기</button></div>
+        <p class="setup-msg" id="setupMsg" role="status"></p>
+      </li>
+    </ol>
+    <div class="setup-done" id="setupDone" hidden>
+      <b>우리 그룹 링크</b>
+      <input id="groupLink" readonly aria-label="우리 그룹 링크">
+      <div class="setup-row"><button type="button" class="btn" id="copyLink">링크 복사</button><a class="btn ghost" id="openLink" href="#">열기</a></div>
+      <span>이 링크를 단톡방에 공유하면 끝이에요. 링크를 아는 사람은 누구나 기록할 수 있으니 친구들끼리만 공유하세요.</span>
+    </div>
+  </div>
+</div>
 <div class="ended" id="ended" hidden>
   <div class="ended-card">
     <div class="eyebrow">2026 Busan International Rock Festival</div>
@@ -1364,6 +1418,73 @@ function renderNow() {
 let toastT;
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1600); }
 
+/* ---------- group setup: each group brings its own Firebase ---------- */
+// A group link carries only the public identifiers of that group's Firebase project (?db=...).
+const b64url = str => btoa(unescape(encodeURIComponent(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const unb64url = str => decodeURIComponent(escape(atob(str.replace(/-/g, "+").replace(/_/g, "/"))));
+function groupConfig() {
+  try {
+    const q = new URLSearchParams(location.search).get("db");
+    if (q) {
+      const o = JSON.parse(unb64url(q));
+      if (o.k && o.p) return { apiKey: o.k, projectId: o.p, authDomain: o.p + ".firebaseapp.com" };
+    }
+  } catch (e) { console.warn("bad group link", e); }
+  const c = window.FIREBASE_CONFIG;
+  if (c && c.projectId && !String(c.projectId).startsWith("YOUR_")) return c;
+  return null;
+}
+function parseFirebaseConfig(text) {
+  const pick = key => { const m = text.match(new RegExp(key + "\\s*[:=]\\s*[\"']([^\"']+)[\"']")); return m ? m[1].trim() : ""; };
+  return { apiKey: pick("apiKey"), projectId: pick("projectId") };
+}
+async function openSetup() {
+  $("setup").hidden = false;
+  try {
+    const r = await fetch("firestore.rules", { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    $("rulesText").value = await r.text();
+  } catch { $("rulesText").value = "규칙 파일을 불러오지 못했어요. 새로고침해 주세요."; }
+}
+$("copyRules").addEventListener("click", async () => {
+  const t = $("rulesText");
+  try { await navigator.clipboard.writeText(t.value); $("rulesMsg").textContent = "복사했어요. Firebase 규칙 탭에 붙여 넣고 게시하세요."; }
+  catch { t.focus(); t.select(); $("rulesMsg").textContent = "선택해 뒀어요. 복사(Ctrl+C)해서 붙여 넣으세요."; }
+});
+function setupMsg(text, bad) { const m = $("setupMsg"); m.textContent = text; m.classList.toggle("bad", !!bad); }
+$("makeLink").addEventListener("click", async () => {
+  const { apiKey, projectId } = parseFirebaseConfig($("cfgText").value);
+  if (!apiKey || !projectId) return setupMsg("apiKey와 projectId를 찾지 못했어요. firebaseConfig 부분을 통째로 붙여 넣어 주세요.", true);
+  $("makeLink").disabled = true;
+  setupMsg("연결을 확인하는 중이에요…");
+  let app;
+  try {
+    app = firebase.initializeApp({ apiKey, projectId, authDomain: projectId + ".firebaseapp.com" }, "check-" + Date.now());
+    const probe = app.firestore().collection("friends").limit(1).get();
+    const timeout = new Promise((_, rej) => setTimeout(() => rej({ code: "timeout" }), 10000));
+    await Promise.race([probe, timeout]);
+    const link = location.origin + location.pathname + "?db=" + b64url(JSON.stringify({ k: apiKey, p: projectId }));
+    $("groupLink").value = link; $("openLink").href = link;
+    $("setupDone").hidden = false;
+    setupMsg("연결됐어요! 아래 링크가 우리 그룹 전용 주소예요.");
+    $("setupDone").scrollIntoView({ behavior: "smooth", block: "center" });
+  } catch (e) {
+    const code = e && e.code;
+    if (code === "permission-denied") setupMsg("연결은 됐는데 규칙이 아직 안 바뀌었어요. 3번 규칙을 붙여 넣고 게시한 뒤 다시 눌러 주세요.", true);
+    else if (code === "failed-precondition" || code === "not-found") setupMsg("Firestore가 아직 없어요. 2번에서 데이터베이스를 먼저 만들어 주세요.", true);
+    else if (code === "invalid-argument" || code === "unauthenticated") setupMsg("설정값이 맞지 않아요. firebaseConfig를 다시 복사해서 붙여 넣어 주세요.", true);
+    else if (code === "timeout") setupMsg("응답이 없어요. Firestore를 만들었는지 확인하고 다시 눌러 주세요.", true);
+    else setupMsg("연결에 실패했어요 (" + (code || "알 수 없는 오류") + "). 설정값과 Firestore를 확인해 주세요.", true);
+  } finally {
+    $("makeLink").disabled = false;
+    if (app) app.delete().catch(() => {});
+  }
+});
+$("copyLink").addEventListener("click", async () => {
+  const i = $("groupLink");
+  try { await navigator.clipboard.writeText(i.value); toast("링크를 복사했어요"); } catch { i.focus(); i.select(); }
+});
+
 /* ---------- boot ---------- */
 // After the festival the page closes itself (the Firestore rules lock the data at the same moment).
 const FESTIVAL_END = Date.parse("2026-10-07T00:00:00+09:00");
@@ -1376,8 +1497,9 @@ setInterval(() => { renderDday(); renderNow(); if (nowMinForDay() != null) rende
 
 (async () => {
   try {
-    const cfg = window.FIREBASE_CONFIG;
-    if (!festivalOver && window.firebase && cfg && cfg.projectId && !String(cfg.projectId).startsWith("YOUR_")) {
+    const cfg = groupConfig();
+    if (!festivalOver && !cfg) openSetup();
+    if (!festivalOver && window.firebase && cfg) {
       firebase.initializeApp(cfg);
       db = firebase.firestore();
     }
