@@ -332,6 +332,15 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw
 .setup-steps > li { counter-increment: st; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 12px 48px; position: relative; display: flex; flex-direction: column; gap: 6px; line-height: 1.55; }
 .setup-steps > li::before { content: counter(st); position: absolute; left: 14px; top: 12px; width: 24px; height: 24px; border-radius: 50%; background: var(--bar); color: var(--bar-ink); font-family: var(--f-display); display: grid; place-items: center; font-size: 13px; }
 .setup-steps span { color: var(--muted); font-size: 13px; }
+.setup-steps ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.setup-steps .setup-warn { background: var(--surface-2); border-radius: 8px; padding: 6px 8px; color: var(--ink); }
+.setup-note { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+.setup-preview { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.setup-preview figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+.setup-preview figcaption a { color: var(--ink); font-size: 13px; }
+.pv-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pv-row img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.pv-cap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 11px; color: var(--muted); text-align: center; }
 .setup-steps a { color: var(--ink); }
 .setup-card code { font-family: var(--f-mono); font-size: 12px; background: var(--surface-2); padding: 0 4px; border-radius: 4px; }
 .setup-card textarea, .setup-done input { width: 100%; font-family: var(--f-mono); font-size: 12px; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 10px; resize: vertical; }
@@ -425,25 +434,61 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw
     <div class="eyebrow">2026 Busan International Rock Festival · 10.2–10.4</div>
     <h2>우리 그룹 만들기</h2>
     <p class="setup-lead">친구들끼리 볼 공연, 쉬는 시간, 돗자리 자리를 같이 기록하는 시간표예요. 기록은 <b>우리 그룹 Firebase</b>에만 저장돼요. 구글 계정만 있으면 무료로 10분이면 만들어요.</p>
+    <figure class="setup-preview">
+      <figcaption><b>다 만들면 이런 화면이에요</b> <a href="?demo" target="_blank" rel="noopener">데모 직접 둘러보기 →</a></figcaption>
+      <div class="pv-row">
+        <img src="preview/timetable.jpg" alt="무대별 시간표 화면 예시: 공연 칸마다 고른 친구 이름 동그라미가 붙어 있어요" loading="lazy" width="375" height="812">
+        <img src="preview/lanes.jpg" alt="친구별 동선 화면 예시: 친구마다 하루 일정이 한 줄로 보여요" loading="lazy" width="375" height="812">
+        <img src="preview/map.jpg" alt="무대 지도 화면 예시: 시간을 고르면 친구들이 어느 무대에 있는지 보여요" loading="lazy" width="375" height="812">
+      </div>
+      <div class="pv-cap"><span>무대별 시간표</span><span>친구별 동선</span><span>무대 지도 · 돗자리</span></div>
+    </figure>
+    <p class="setup-note">그룹에서 <b>한 명만</b> 하면 돼요. 나머지 친구들은 마지막에 나오는 링크만 받으면 끝이에요. 컴퓨터 크롬에서 하면 편하고, Firebase는 <b>새 탭</b>에서 열어서 이 화면은 그대로 두세요.</p>
     <ol class="setup-steps">
       <li>
         <b>Firebase 프로젝트 만들기</b>
-        <span><a href="https://console.firebase.google.com" target="_blank" rel="noopener">Firebase 콘솔</a> → 프로젝트 추가 (Google 애널리틱스는 꺼도 돼요). 요금제는 <b>Spark(무료)</b> 그대로 두세요.</span>
+        <span>Firebase는 구글이 무료로 주는 저장 공간이에요. 우리 그룹 기록이 여기에 저장돼요.</span>
+        <ul>
+          <li><a href="https://console.firebase.google.com" target="_blank" rel="noopener">Firebase 콘솔</a>을 새 탭으로 열고 구글 계정으로 로그인</li>
+          <li><b>Firebase 프로젝트 만들기</b> (또는 <b>프로젝트 추가</b>, <b>시작하기</b>) 클릭</li>
+          <li>프로젝트 이름은 아무거나 영어로. 예: <code>burock-ourteam</code> → 약관 체크 → <b>계속</b></li>
+          <li><b>Gemini</b>, <b>Google 애널리틱스</b>를 켤지 물어보면 전부 <b>끄고</b> <b>계속</b></li>
+          <li>"새 프로젝트가 준비되었습니다"가 나오면 <b>계속</b></li>
+        </ul>
+        <span class="setup-warn">💰 처음 만들면 <b>Spark(무료)</b> 요금제예요. 카드를 등록하지 않으면 돈이 나갈 수 없어요. <b>업그레이드</b>, <b>Blaze</b> 버튼은 누르지 마세요.</span>
       </li>
       <li>
-        <b>Firestore 만들기</b>
-        <span>왼쪽 메뉴 <b>데이터베이스 및 스토리지 → Firestore → 데이터베이스 만들기</b> · 위치 <code>asia-northeast3 (Seoul)</code> · <b>프로덕션 모드</b></span>
+        <b>Firestore(저장소) 만들기</b>
+        <ul>
+          <li>프로젝트 화면 왼쪽 메뉴 <b>데이터베이스 및 스토리지</b> 클릭 (메뉴가 안 보이면 왼쪽 위 ☰)</li>
+          <li>펼쳐진 메뉴에서 <b>Firestore</b> 클릭 (<b>Realtime Database가 아니에요</b>)</li>
+          <li><b>데이터베이스 만들기</b> 클릭 후 이렇게 고르기
+            <br>버전: <b>Standard</b> · ID: 그대로 <code>(default)</code> · 위치: <code>asia-northeast3 (Seoul)</code> · 규칙: <b>프로덕션 모드</b></li>
+          <li><b>만들기</b> → "데이터베이스를 사용할 준비가 되었습니다"가 나오면 완료</li>
+        </ul>
       </li>
       <li>
         <b>보안 규칙 붙여 넣기</b>
-        <span>Firestore 위쪽 <b>규칙</b> 탭 → 원래 내용을 지우고 아래 규칙을 붙여 넣은 뒤 <b>게시</b>. 2026-10-07 0시가 지나면 자동으로 잠겨요.</span>
+        <span>"누가 무엇을 저장할 수 있는지" 정하는 문장이에요. 이 앱용으로 준비돼 있어서 복사해서 붙여 넣기만 하면 돼요. 2026-10-07 0시가 지나면 자동으로 잠겨요.</span>
         <div class="setup-row"><button type="button" class="btn" id="copyRules">규칙 복사</button><span class="setup-ok" id="rulesMsg"></span></div>
+        <ul>
+          <li>Firebase 탭 Firestore 화면 위쪽 탭 중 <b>규칙</b> 클릭 (데이터 · <b>규칙</b> · 색인 …)</li>
+          <li>글 상자 안을 클릭하고 <b>Ctrl + A</b> → <b>Delete</b>로 원래 내용을 <b>전부 지우기</b></li>
+          <li><b>Ctrl + V</b>로 붙여 넣기 → 오른쪽 위 <b>게시</b> (확인 창이 뜨면 한 번 더 <b>게시</b>)</li>
+        </ul>
+        <span>맥은 Ctrl 대신 ⌘(Command)예요.</span>
         <textarea id="rulesText" readonly rows="4" aria-label="보안 규칙"></textarea>
       </li>
       <li>
         <b>웹 앱 등록하고 설정 붙여 넣기</b>
-        <span><b>설정(톱니바퀴) → 프로젝트 설정 → 내 앱 → 웹(&lt;/&gt;)</b>으로 앱 등록 → 나오는 <code>const firebaseConfig = { ... }</code> 부분을 통째로 복사해서 아래에 붙여 넣어요.</span>
-        <textarea id="cfgText" rows="6" placeholder="const firebaseConfig = {&#10;  apiKey: &quot;...&quot;,&#10;  projectId: &quot;...&quot;,&#10;  ...&#10;};" aria-label="firebaseConfig 붙여 넣기"></textarea>
+        <ul>
+          <li>Firebase 왼쪽 위 <b>⚙ 톱니바퀴</b> → <b>프로젝트 설정</b></li>
+          <li><b>일반</b> 탭을 아래로 내리면 <b>내 앱</b> → 동그란 아이콘 중 <b>&lt;/&gt;</b>(웹) 클릭</li>
+          <li>앱 닉네임 아무거나 (예: <code>burock</code>) → <b>Firebase 호스팅도 설정</b>은 체크 <b>안 함</b> → <b>앱 등록</b></li>
+          <li>나오는 코드에서 <code>const firebaseConfig = {</code>부터 <code>};</code>까지 드래그해서 복사 (조금 넓게 복사해도 괜찮아요)</li>
+          <li>아래 상자에 붙여 넣고 <b>연결 확인하고 링크 만들기</b></li>
+        </ul>
+        <textarea id="cfgText" rows="6" placeholder="const firebaseConfig = {&#10;  apiKey: &quot;AIza...&quot;,&#10;  authDomain: &quot;burock-ourteam.firebaseapp.com&quot;,&#10;  projectId: &quot;burock-ourteam&quot;,&#10;  ...&#10;};" aria-label="firebaseConfig 붙여 넣기"></textarea>
         <div class="setup-row"><button type="button" class="btn" id="makeLink">연결 확인하고 링크 만들기</button></div>
         <p class="setup-msg" id="setupMsg" role="status"></p>
       </li>
@@ -781,6 +826,7 @@ function saveFriend(f) {
   queues[f.id] = (queues[f.id] || Promise.resolve()).then(() => db.doc("friends/" + f.id).set(body)).catch(writeError);
 }
 function meOrAsk() {
+  if (state.demo) { toast("데모 화면이라 저장되지 않아요"); return null; }
   if (!db) { toast("지금 화면에서는 기록을 저장할 수 없어요"); return null; }
   if (state.readOnly) { toast("보기 전용 링크라 기록할 수 없어요"); return null; }
   const me = state.friends.find(f => f.id === state.me);
@@ -1226,6 +1272,7 @@ function renderMap() {
 
 /* ---------- picnic mats: add, drag, rename, delete ---------- */
 function canWrite() {
+  if (state.demo) { toast("데모 화면이라 저장되지 않아요"); return false; }
   if (!db) { toast("지금 화면에서는 저장할 수 없어요"); return false; }
   if (state.readOnly) { toast("보기 전용이라 저장할 수 없어요"); return false; }
   return true;
@@ -1485,6 +1532,26 @@ $("copyLink").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(i.value); toast("링크를 복사했어요"); } catch { i.focus(); i.select(); }
 });
 
+/* ---------- demo data (?demo) ---------- */
+function startDemo() {
+  const F = (id, name, color, sets, meals = []) => ({ id, name, color, createdAt: 0, sets: Object.fromEntries(sets.map(x => [x, 1])), meals });
+  const brk = (id, day, s, e, label, spot) => ({ id, day, s: toMin(s), e: toMin(e), label, kind: "rest", spot });
+  state.friends = [
+    F("demo-a", "민지", "#E4572E", ["d1-green-1130", "d1-river-1240", "d1-samrock-1400", "d1-green-1600", "d1-green-1740", "d1-samrock-2040", "d2-samrock-1830", "d2-samrock-2040"], [brk("m1", 1, "16:50", "17:40", "저녁 푸드트럭", "demo-spot")]),
+    F("demo-b", "서준", "#2A6FDB", ["d1-wave-1230", "d1-samrock-1400", "d1-river-1600", "d1-river-1710", "d1-samrock-1830", "d1-samrock-2040", "d2-green-1930"], [brk("m2", 1, "15:20", "16:00", "간식", "demo-spot")]),
+    F("demo-c", "하윤", "#1B998B", ["d1-green-1130", "d1-green-1440", "d1-hidden-1500", "d1-green-1740", "d1-green-1930", "d3-samrock-1650"], [brk("m3", 1, "15:20", "16:00", "돗자리", "demo-spot")]),
+    F("demo-d", "도윤", "#8E44AD", ["d1-river-1240", "d1-samrock-1400", "d1-green-1600", "d1-wave-1740", "d1-river-1840", "d1-samrock-2040"], [brk("m4", 1, "13:10", "13:50", "점심", "demo-spot")]),
+    F("demo-e", "지우", "#D81E5B", ["d1-wave-1230", "d1-green-1440", "d1-samrock-1650", "d1-river-1710", "d1-green-1930", "d1-samrock-2040", "d3-samrock-2050"]),
+    F("demo-f", "예린", "#E08A00", ["d1-river-1600", "d1-samrock-1650", "d1-green-1740", "d1-samrock-2040", "d2-samrock-2040"]),
+  ];
+  state.spots = [{ id: "demo-spot", name: "우리 돗자리", x: 206, y: 226, createdAt: 0 }];
+  state.demo = true; state.loaded = true; state.me = "demo-a"; state.day = 1;
+  if (state.mapMin == null || state.mapMin < 17 * 60) state.mapMin = 17 * 60 + 10;
+  $("addForm").hidden = true; $("editBtn").hidden = true;
+  showNotice("데모 화면이에요. 가짜 친구 기록으로 보여주는 거라 눌러도 저장되지 않아요.");
+  renderTabs(); renderChips(); renderSpotSelect(); renderBoard(true); renderNow();
+}
+
 /* ---------- boot ---------- */
 // After the festival the page closes itself (the Firestore rules lock the data at the same moment).
 const FESTIVAL_END = Date.parse("2026-10-07T00:00:00+09:00");
@@ -1496,6 +1563,7 @@ renderDday(); renderTabs(); renderBoard(true);
 setInterval(() => { renderDday(); renderNow(); if (nowMinForDay() != null) renderBoard(); }, 60000);
 
 (async () => {
+  if (new URLSearchParams(location.search).has("demo")) { startDemo(); return; }
   try {
     const cfg = groupConfig();
     if (!festivalOver && !cfg) openSetup();
